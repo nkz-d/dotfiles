@@ -121,25 +121,32 @@
   # --------------------------------------------------------------------------
   security.pam.services.sudo_local.touchIdAuth = true;
 
-  # macOS デフォルト（dock autohide 等）はデスクトップ挙動が変わるので任意。
-  # 欲しくなったらコメントを外して darwin-rebuild switch。
-  # system.defaults = {
-  #   NSGlobalDomain = {
-  #     AppleShowAllExtensions = true;
-  #     InitialKeyRepeat = 14;
-  #     KeyRepeat = 1;
-  #     ApplePressAndHoldEnabled = false; # 長押しで accent menu を出さない
-  #   };
-  #   finder = {
-  #     AppleShowAllFiles = true;
-  #     FXEnableExtensionChangeWarning = false;
-  #     ShowPathbar = true;
-  #   };
-  #   dock = {
-  #     autohide = true;
-  #     show-recents = false;
-  #     mru-spaces = false;
-  #   };
-  #   trackpad.Clicking = true;
-  # };
+  # macOS デフォルト（旧 ~/.dotfiles/bootstrap.sh の `defaults write` を移植）。
+  # darwin-rebuild switch で適用。反映に再ログインや Dock/SystemUIServer 再起動が
+  # 要る項目もある。
+  system.defaults = {
+    NSGlobalDomain = {
+      InitialKeyRepeat = 11; # 入力開始までの待ち（小さいほど速い）
+      KeyRepeat = 1; # リピート速度（小さいほど速い）
+    };
+    dock = {
+      autohide = true;
+      tilesize = 40;
+      mineffect = "scale";
+    };
+    trackpad.TrackpadThreeFingerDrag = true; # 3本指ドラッグ（内蔵トラックパッド）
+    menuExtraClock.ShowSeconds = true;
+
+    # 型付きオプションが無いもの / 外付け(Bluetooth)トラックパッドのドメインは
+    # 生 defaults として書く（domain → key → value）。
+    CustomUserPreferences = {
+      NSGlobalDomain = {
+        "com.apple.trackpad.scaling" = 3.0; # トラックパッド速度を最大寄りに
+        AppleEnableSwipeNavigateWithScrolls = true; # 2本指スワイプで戻る/進む
+      };
+      "com.apple.driver.AppleBluetoothMultitouch.trackpad" = {
+        TrackpadThreeFingerDrag = true;
+      };
+    };
+  };
 }
