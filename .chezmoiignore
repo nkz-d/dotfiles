@@ -40,5 +40,10 @@ CLAUDE.md
 .config/home-manager/result
 .config/home-manager/result-*
 
+# Karabiner-Elements: karabiner.json だけ管理する。assets/ と自動バックアップは
+# Karabiner が生成・随時更新するので chezmoi は触らない。
+.config/karabiner/assets/**
+.config/karabiner/automatic_backups/**
+
 # 注: ~/.config/home-manager/private.nix は private.nix.tmpl から chezmoi が
 # 生成する（identity 注入用）。生成ターゲットなので ignore しないこと。

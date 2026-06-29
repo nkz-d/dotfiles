@@ -33,7 +33,7 @@
   # Homebrew bridge — casks / mas / taps を宣言的に管理する（③ の主目的）。
   # cleanup = "none": リスト外を消さない（安全側）。慣れてきたら "uninstall" に。
   # CLI formula は nixpkgs へ移行済みなので brews はほぼ空（mas だけ masApps 用に確保）。
-  # prefix は標準の /opt/homebrew（mizchi の ~/brew とは違うので未指定＝デフォルト）。
+  # prefix は標準の /opt/homebrew
   # --------------------------------------------------------------------------
   homebrew = {
     enable = true;
