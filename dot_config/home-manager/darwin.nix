@@ -31,15 +31,20 @@
 
   # --------------------------------------------------------------------------
   # Homebrew bridge — casks / mas / taps を宣言的に管理する（③ の主目的）。
-  # cleanup = "none": リスト外を消さない（安全側）。慣れてきたら "uninstall" に。
-  # CLI formula は nixpkgs へ移行済みなので brews はほぼ空（mas だけ masApps 用に確保）。
+  # cleanup = "uninstall": この宣言(Brewfile)に無い brew/cask は uninstall される
+  # ＝宣言が source of truth。CLI は nixpkgs へ移行済みなので brews は mas のみ。
+  # 意図的に「ここに置かない」もの（cleanup で撤去される）:
+  #   - chezmoi: curl(get.chezmoi.io)で ~/.local/bin に入れる前提
+  #   - zsh: Apple 標準 /bin/zsh を使う（chsh で切替。brew zsh は撤去）
+  #   - python@3.12 / python-tk / ruby-build / gcc / terraformer: 不要として撤去
+  #   - 1password-cli(op)→nix / google-cloud-sdk→gcloud-cli に一本化
   # prefix は標準の /opt/homebrew
   # --------------------------------------------------------------------------
   homebrew = {
     enable = true;
     onActivation = {
       autoUpdate = false;
-      cleanup = "none";
+      cleanup = "uninstall";
       upgrade = false;
     };
 
