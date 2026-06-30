@@ -76,8 +76,10 @@
         };
     in
     {
-      # Standalone home-manager: `home-manager switch --flake .#daikinagaoka`
-      homeConfigurations.${private.username} = home-manager.lib.homeManagerConfiguration {
+      # Standalone home-manager: `home-manager switch --flake .#macos`
+      # 出力名は固定 "macos"（mizchi 同様・マシン非依存）。内部の username/home は
+      # private（daikinagaoka / /Users/nekoze）なので挙動は変わらない。
+      homeConfigurations.macos = home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
           inherit system;
           overlays = sharedOverlays;
@@ -86,11 +88,11 @@
         modules = [ homeUser ];
       };
 
-      # nix-darwin（system 層 + homebrew 宣言管理）: `darwin-rebuild switch --flake .#daikinagaoka`
+      # nix-darwin（system 層 + homebrew 宣言管理）: `darwin-rebuild switch --flake .#macos`
       # home は当面 standalone home-manager 側で管理（useUserPackages によるパッケージ移動で
       # ~/.nix-profile/bin の PATH 設定が崩れるのを避けるため、home-manager の darwin module
       # 統合はあえてしない。統合は将来の選択肢）。
-      darwinConfigurations.${private.username} = nix-darwin.lib.darwinSystem {
+      darwinConfigurations.macos = nix-darwin.lib.darwinSystem {
         modules = [
           {
             nixpkgs.overlays = sharedOverlays;

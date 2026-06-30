@@ -8,8 +8,8 @@ This is the **chezmoi source directory** (`~/.local/share/chezmoi`, `destDir = ~
 
 Three layers, three jobs:
 - **chezmoi** — deploys files from this repo into `~`. Run `chezmoi apply` after editing source here.
-- **home-manager** (standalone, `homeConfigurations."daikinagaoka"`) — installs CLI packages and manages shell/program config (zsh, starship, mise, …). Run `home-manager switch` after editing `common.nix`/`secrets.nix`.
-- **nix-darwin** (`darwinConfigurations."daikinagaoka"`) — manages macOS system settings and Homebrew (casks/mas/taps) declaratively. Run `sudo darwin-rebuild switch` after editing `darwin.nix`.
+- **home-manager** (standalone, `homeConfigurations."macos"`) — installs CLI packages and manages shell/program config (zsh, starship, mise, …). Run `home-manager switch` after editing `common.nix`/`secrets.nix`.
+- **nix-darwin** (`darwinConfigurations."macos"`) — manages macOS system settings and Homebrew (casks/mas/taps) declaratively. Run `sudo darwin-rebuild switch` after editing `darwin.nix`.
 
 Nix files (mizchi-style layout, under `dot_config/home-manager/`):
 - `flake.nix` — inputs (nixpkgs, home-manager, nix-darwin, sops-nix) + the `homeConfigurations`/`darwinConfigurations` outputs. Identity from `private` (the generated `private.nix`); shared overlays in `sharedOverlays` (incl. a `mise` `doCheck=false` fix). `homeUser` is the shared home-manager module. Also a `formatter` output (nixfmt) so `nix fmt` works here.
@@ -46,10 +46,10 @@ chezmoi managed          # list everything chezmoi controls
 Nix — home (`common.nix`/`secrets.nix`) and system (`darwin.nix`):
 ```
 # home: CLI packages + shell/program config
-home-manager switch -b backup --flake ~/.config/home-manager#daikinagaoka
+home-manager switch -b backup --flake ~/.config/home-manager#macos
 
 # system: macOS settings + Homebrew (casks/mas/taps)
-sudo darwin-rebuild switch --flake ~/.config/home-manager#daikinagaoka
+sudo darwin-rebuild switch --flake ~/.config/home-manager#macos
 
 nix flake update     # bump inputs; GitHub 403 on sops-nix? prefix NIX_CONFIG="access-tokens = github.com=$(gh auth token)"
 nix flake check
@@ -58,8 +58,8 @@ nix fmt              # nixfmt formatter output (run from ~/.config/home-manager)
 First-time nix-darwin bootstrap (before `darwin-rebuild` is on PATH):
 ```
 cd ~/.config/home-manager
-nix build .#darwinConfigurations.daikinagaoka.system
-sudo ./result/sw/bin/darwin-rebuild switch --flake .#daikinagaoka
+nix build .#darwinConfigurations.macos.system
+sudo ./result/sw/bin/darwin-rebuild switch --flake .#macos
 ```
 
 ## Secrets — two systems
@@ -84,7 +84,7 @@ This repo uses **two independent age-based encryption systems**. Don't conflate 
 
 ## Current state / gotchas
 
-- Both `homeConfigurations."daikinagaoka"` and `darwinConfigurations."daikinagaoka"` are live and validated with `nix build`. Shell + CLI + casks/mas have been migrated off `~/.dotfiles` (which now only holds `.gitconfig`/`.vimrc`/`.ssh`).
+- Both `homeConfigurations."macos"` and `darwinConfigurations."macos"` are live and validated with `nix build`. Shell + CLI + git + casks/mas have been migrated off `~/.dotfiles` (which now only holds `.vimrc`/`.ssh`).
 - **Determinate Nix is the Nix install**, so `darwin.nix` sets `nix.enable = false` and `programs.zsh.enable = false` (don't let nix-darwin fight over `/etc/nix/nix.conf` or `/etc/zshrc`). Consequence: `/run/current-system/sw/bin` (where `darwin-rebuild` lives) is put on PATH by `common.nix`'s `programs.zsh.initContent`, not by nix-darwin.
 - **home-manager is standalone, not a nix-darwin module** (no `useUserPackages`), so home packages live in `~/.nix-profile/bin`; `common.nix` prepends that ahead of `/opt/homebrew/bin` so nix tools beat brew.
 - **OS username `daikinagaoka` ≠ `$HOME` `/Users/nekoze`** — never derive home from the username (`private.nix.tmpl` takes them from `.chezmoi.username` / `.chezmoi.homeDir` separately).
