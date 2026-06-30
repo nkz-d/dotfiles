@@ -3,8 +3,9 @@ node_modules
 package-lock.json
 **/.DS_Store
 
-# Repo docs for Claude Code — must not be deployed to ~ by chezmoi.
+# Repo docs — must not be deployed to ~ by chezmoi.
 CLAUDE.md
+README.md
 
 # MoonBit build artifacts (inside skill assets/)
 **/_build
