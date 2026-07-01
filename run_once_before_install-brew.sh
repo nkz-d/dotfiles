@@ -1,11 +1,9 @@
-#!/bin/sh
-# Bootstrap: 標準の /opt/homebrew に Homebrew が無ければ入れる。
-# nix-darwin の homebrew module は brew の存在を前提にするので、初回の
-# darwin-rebuild switch より前に用意しておく必要がある。
-# chezmoi の run_once_before フック（初回 apply 時に一度だけ・ファイル展開前）。
-#
-# 注: /opt/homebrew の作成には root が要るため、真っさらな Mac では公式
-#     installer が sudo を一度要求する（既に brew があればここで skip）。
+#!/usr/bin/env sh
+# Bootstrap: install Homebrew into /opt/homebrew if missing, so nix-darwin's
+# homebrew module has brew present before the first `darwin-rebuild switch`.
+# chezmoi run_once_before hook (runs once per machine, before file apply).
+# 注: /opt/homebrew は作成に root が要るため、真っさらな Mac では公式 installer が
+#     sudo を一度だけ要求する（既に brew があれば skip）。
 set -eu
 
 if command -v brew >/dev/null 2>&1 || [ -x /opt/homebrew/bin/brew ]; then
