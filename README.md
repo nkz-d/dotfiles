@@ -46,14 +46,15 @@ chezmoi init --apply nekoze1210/chezmoi-dotfiles
 # 4. home-manager (first activation — home-manager not on PATH yet).
 #    Installs CLI + shell stack + `op`, and sops-nix decrypts secrets using
 #    ~/.ssh/id_github. Open a new terminal afterwards.
-nix run github:nix-community/home-manager -- switch -b backup --flake ~/.config/home-manager#macos
+nix run home-manager/master -- switch --flake ~/.config/home-manager#macos
 
-# 5. nix-darwin (first activation / bootstrap — darwin-rebuild not on PATH yet).
-#    Installs casks/mas/taps, macOS defaults, and Touch-ID-for-sudo.
-#    This first run asks for your password; sudo becomes Touch ID afterwards.
-cd ~/.config/home-manager
-nix build .#darwinConfigurations.macos.system
-sudo ./result/sw/bin/darwin-rebuild switch --flake .#macos
+# 5. nix-darwin (first activation — darwin-rebuild not on PATH yet).
+#    Installs casks/mas/taps, macOS defaults, and Touch-ID-for-sudo. macOS
+#    system activation needs root: this first run asks for a password, then
+#    sudo becomes Touch ID. (Fallback if `sudo nix` isn't on root's PATH:
+#    `nix build ~/.config/home-manager#darwinConfigurations.macos.system` then
+#    `sudo ./result/sw/bin/darwin-rebuild switch --flake ~/.config/home-manager#macos`.)
+sudo nix run nix-darwin -- switch --flake ~/.config/home-manager#macos
 
 # 6. (optional) chezmoi-age key — only needed once you encrypt files with
 #    `chezmoi add --encrypt`. Sign in to 1Password CLI (enable the app's
