@@ -93,5 +93,7 @@ To revoke a lost machine: drop its recipient from `dot_sops.yaml`, run
   outside the sandbox. Build/eval succeed without the key.
 - `nix flake lock` / `flake update` for `sops-nix` hits the GitHub API and may 403 on
   rate limit. Authenticate: `NIX_CONFIG="access-tokens = github.com=$(gh auth token)" nix flake lock`.
-- Currently this is **standalone home-manager** (`homeConfigurations."daikinagaoka"`).
-  When nix-darwin is added later, share the same `secrets.nix` via the darwin module.
+- sops-nix runs in the **standalone home-manager** layer (`homeConfigurations."macos"`).
+  nix-darwin (`darwinConfigurations."macos"`) is a separate, system-only config that does
+  **not** embed home-manager, so secrets stay entirely in the home-manager layer —
+  `secrets.nix` is imported only by the shared `homeUser` module, never by the darwin module.
