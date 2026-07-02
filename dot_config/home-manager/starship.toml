@@ -1,0 +1,140 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+add_newline = true
+
+scan_timeout = 10
+
+[character]
+success_symbol = "[[󰄛](green) ❯](peach)"
+error_symbol = "[[󰄛](red) ❯](peach)"
+vimcmd_symbol = "[󰄛 ❮](subtext1)" # For use with zsh-vi-mode
+
+[battery]
+full_symbol = "🔋"
+charging_symbol = "⚡️"
+discharging_symbol = "💀"
+
+[directory]
+format = "[](fg:#232526 bg:none)[$path]($style)[](fg:#232526 bg:#232526)[](fg:#75dff2 bg:#232526)[](fg:#232526 bg:#75dff2)[](fg:#75dff2 bg:none) "
+style = "fg:#edeff0 bg:#232526"
+truncation_length = 3
+truncate_to_repo=false
+
+[git_branch]
+format = "[](fg:#232526 bg:none)[$branch]($style)[](fg:#232526 bg:#232526)[](fg:#78b892 bg:#232526)[](fg:#282c34 bg:#78b892)[](fg:#78b892 bg:none) "
+style = "fg:#edeff0 bg:#232526"
+
+[git_status]
+format = '$all_status$ahead_behind '
+ahead = '[⬆](bold purple) '
+behind = '[⬇](bold purple) '
+staged = '[✚](green) '
+deleted = '[✖](red) '
+renamed = '[➜](purple) '
+stashed = '[✭](cyan) '
+untracked = '[◼](white) '
+modified = '[✱](blue) '
+conflicted = '[═](yellow) '
+diverged = '⇕ '
+up_to_date = ''
+
+[git_commit]
+format = "[\\($hash\\)]($style) [\\($tag\\)]($style)"
+style = "green"
+
+[git_state]
+rebase = "REBASING"
+merge =	"MERGING"
+revert = "REVERTING"
+cherry_pick = "CHERRY-PICKING"
+bisect = "BISECTING"
+am = "AM"
+am_or_rebase = "AM/REBASE"
+style =	"yellow"
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+
+[hostname]
+ssh_only = true
+format = "[$hostname](bold blue) "
+disabled = false
+
+[docker_context]
+format = "via [🐋 $context](blue bold)"
+
+[nodejs]
+disabled = true
+format = "[⬢ $version](bold green) "
+
+[golang]
+format = '[$symbol($version )]($style)'	
+symbol = " "
+
+[python]
+symbol = " "
+
+[rlang]
+symbol = "ﳒ "
+
+[ruby]
+format = '[$symbol($version )]($style)'
+symbol = " "
+
+[rust]
+symbol = " "
+
+[scala]
+symbol = " "
+
+[spack]
+symbol = "🅢 "
+
+[java]
+symbol = " "
+
+[gcloud]
+disabled = true
+
+[aws]
+disabled = true
+symbol = "  "
+
+[package]
+disabled = true
+
+[os.symbols]
+Alpine = " "
+Amazon = " "
+Android = " "
+Arch = " "
+CentOS = " "
+Debian = " "
+DragonFly = " "
+Emscripten = " "
+EndeavourOS = " "
+Fedora = " "
+FreeBSD = " "
+Garuda = "﯑ "
+Gentoo = " "
+HardenedBSD = "ﲊ "
+Illumos = " "
+Linux = " "
+Macos = " "
+Manjaro = " "
+Mariner = " "
+MidnightBSD = " "
+Mint = " "
+NetBSD = " "
+NixOS = " "
+OpenBSD = " "
+openSUSE = " "
+OracleLinux = " "
+Pop = " "
+Raspbian = " "
+Redhat = " "
+RedHatEnterprise = " "
+Redox = " "
+Solus = "ﴱ "
+SUSE = " "
+Ubuntu = " "
+Unknown = " "
+Windows = " "

@@ -197,32 +197,11 @@
   programs.starship = {
     enable = true;
     enableZshIntegration = true;
-    settings = {
-      add_newline = true;
-      character.format = "[\\$](green bold) ";
-      directory.truncation_length = 3;
-      git_branch = {
-        symbol = "";
-        format = ''\([$symbol$branch(:$remote_branch)]($style)\)'';
-      };
-      git_status = {
-        format = "([$all_status$ahead_behind]($style) )";
-        conflicted = "";
-        ahead = "";
-        behind = "";
-        diverged = "";
-        up_to_date = "✓";
-        untracked = "";
-        stashed = "";
-        modified = "🔥";
-        staged = "";
-        renamed = "";
-        deleted = "";
-      };
-      package.disabled = true;
-      nodejs.disabled = true;
-      gcloud.disabled = true;
-    };
+    # テーマは ./starship.toml（旧 ~/.dotfiles/.config/starship.toml を復元したもの）を
+    # そのまま読み込む。home-manager がこれを ~/.config/starship.toml へ生成する
+    # ＝ settings をインラインで書くのと等価だが、nerd-font glyph 込みの大きなテーマは
+    # TOML のまま持つほうが編集しやすく写し間違いも防げる。変更後は home-manager switch。
+    settings = builtins.fromTOML (builtins.readFile ./starship.toml);
   };
 
   programs.direnv = {
