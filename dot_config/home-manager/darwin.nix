@@ -84,7 +84,6 @@
       "iterm2"
       "karabiner-elements"
       "keyboardcleantool"
-      "makemkv"
       "ngrok"
       "obsidian"
       "raycast"
