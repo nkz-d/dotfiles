@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "scripts": {
+    "prepare": "lefthook install"
+  },
+  "dependencies": {
+    "@types/node": "^26.1.0"
+  },
+  "devDependencies": {
+    "@secretlint/secretlint-rule-pattern": "^13.0.2",
+    "@secretlint/secretlint-rule-preset-recommend": "^13.0.2",
+    "lefthook": "^2.1.0",
+    "secretlint": "^13.0.2"
+  }
+}

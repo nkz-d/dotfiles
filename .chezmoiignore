@@ -1,6 +1,8 @@
 node_modules
 **/node_modules
+package.json
 package-lock.json
+lefthook.yml
 **/.DS_Store
 
 # Repo docs — must not be deployed to ~ by chezmoi.
