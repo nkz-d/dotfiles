@@ -46,5 +46,10 @@ README.md
 .config/karabiner/assets/**
 .config/karabiner/automatic_backups/**
 
+# espanso: match/packages/（コミュニティパッケージ、espanso install で導入）と
+# *.log はランタイム生成物。実際のパスは `espanso path packages` で確認済み。
+Library/Application Support/espanso/match/packages/**
+Library/Application Support/espanso/*.log
+
 # 注: ~/.config/home-manager/private.nix は private.nix.tmpl から chezmoi が
 # 生成する（identity 注入用）。生成ターゲットなので ignore しないこと。

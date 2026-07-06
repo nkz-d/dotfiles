@@ -1,0 +1,36 @@
+#!/bin/sh
+# Registers and (re)starts the espanso launchd service whenever the espanso
+# config/match files change. run_onchange_ means chezmoi re-runs this script
+# any time its *rendered content* changes; embedding a hash of the config
+# files below is what makes their changes count as "this script changed".
+# after_ pins this to run after all normal file application, so the config
+# files are guaranteed to be on disk already.
+#
+# "one file, one owning layer": Homebrew (via darwin.nix / darwin-rebuild)
+# owns the espanso *binary*; the managed files above own config content;
+# this script owns service (re)start only. Binary install is intentionally
+# NOT handled here or by chezmoi, so `chezmoi apply` and `darwin-rebuild
+# switch` may run in either order — if espanso isn't installed yet, this
+# script fails loudly (see guard below) instead of silently skipping, so
+# chezmoi retries it automatically on the next apply once espanso exists.
+#
+# Config hash (do not remove — this is what triggers re-runs on config change):
+# {{ include "Library/Application Support/espanso/config/default.yml" | sha256sum }}
+# {{ include "Library/Application Support/espanso/match/base.yml" | sha256sum }}
+set -eu
+
+if ! command -v espanso >/dev/null 2>&1; then
+  echo "[chezmoi] espanso not installed yet (run 'sudo darwin-rebuild switch' first) — will retry next apply" >&2
+  exit 1
+fi
+
+if ! espanso service check >/dev/null 2>&1; then
+  echo "[chezmoi] Registering espanso service ..." >&2
+  espanso service register
+fi
+
+echo "[chezmoi] Restarting espanso service ..." >&2
+if ! espanso service restart; then
+  echo "[chezmoi] restart failed, trying start instead ..." >&2
+  espanso service start
+fi

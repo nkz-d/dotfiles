@@ -1,0 +1,37 @@
+# espanso configuration file
+#
+# yaml-language-server: $schema=https://raw.githubusercontent.com/espanso/espanso/dev/schemas/config.schema.json
+#
+# For a complete introduction, visit the official docs at: https://espanso.org/docs/
+#
+# This file defines the global configuration options for espanso. These are
+# the parameters used by default on every application, but they can also be
+# overridden on a per-application basis.
+#
+# Managed by chezmoi (source: Library/Application Support/espanso/config/default.yml).
+# espanso itself is installed via Homebrew cask, declared in darwin.nix (darwin-rebuild
+# switch installs it) — chezmoi only manages this config content and the service restart.
+#
+# To pull in an already-tuned live config instead of hand-editing this file:
+#   chezmoi add "$HOME/Library/Application Support/espanso/config/default.yml"
+#   chezmoi diff  # review before committing
+
+# --- Menu bar icon
+show_icon: false
+
+# --- Toggle key
+# toggle_key: ALT
+
+# --- Injection Backend
+# backend: Clipboard
+
+# --- Auto-restart
+# auto_restart: false
+
+# --- Clipboard threshold
+# clipboard_threshold: 100
+
+# --- Regex Buffer Size
+# max_regex_buffer_size: 30
+
+# For the full list of options, see: https://espanso.org/docs/

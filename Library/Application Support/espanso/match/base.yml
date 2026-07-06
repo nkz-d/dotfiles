@@ -1,0 +1,25 @@
+# espanso match file
+#
+# yaml-language-server: $schema=https://raw.githubusercontent.com/espanso/espanso/dev/schemas/match.schema.json
+#
+# Matches are substitution rules: typing the "trigger" string replaces it
+# with the "replace" string. See: https://espanso.org/docs/
+#
+# Managed by chezmoi (source: Library/Application Support/espanso/match/base.yml).
+# Note: {{mydate}} below is espanso's OWN template syntax, evaluated by espanso
+# at expansion time — not chezmoi's. This file intentionally has no .tmpl
+# suffix so chezmoi leaves it byte-for-byte untouched.
+#
+# Emoji shortcodes (Slack/Discord-style `:name:`) come from the "all-emojis"
+# espanso package instead of being hand-maintained here — see
+# .chezmoiscripts/run_once_before_install-espanso-packages.sh.
+
+matches:
+  # Today's date (adjust `format` — strftime-style — to taste)
+  - trigger: ":today:"
+    replace: "{{mydate}}"
+    vars:
+      - name: mydate
+        type: date
+        params:
+          format: "%Y-%m-%d"
