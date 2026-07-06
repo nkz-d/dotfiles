@@ -3,7 +3,6 @@
 # このファイルは「参照宣言」だけ。値は一切ここに書かない。
 #
 # 復号鍵: ~/.ssh/id_github（ed25519, パスフレーズなし）を ssh-to-age 経由で
-# age 復号鍵として直接使う（mizchi 同様、専用 age 鍵は作らない）。
 # 公開 recipient は .sops.yaml（dot_sops.yaml）に置いてある。
 { ... }:
 {
@@ -17,7 +16,6 @@
     # 0400 ファイルとして置かれる（path は config.sops.secrets.<name>.path）。
     # ここで宣言した名前は secrets/global.json のキーと一致している必要がある。
     # 値の export は common.nix の programs.zsh.initContent 側で行う
-    # （config.sops.secrets を走査して path から読む。mizchi の common.nix 方式）。
     secrets = {
       EXAMPLE_TOKEN = { };
     };

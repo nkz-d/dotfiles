@@ -1,13 +1,9 @@
 { pkgs, lib, config, ... }:
 
 {
-  home.stateVersion = "26.05"; # 変更しないこと（home-manager のリリース互換）
+  home.stateVersion = "26.05";
   programs.home-manager.enable = true;
 
-  # Brewfile 由来の CLI を brew → nixpkgs へ移行したもの（バイナリのみ）。
-  # 設定込みで管理するもの（starship/direnv/fzf/mise/sheldon 等）は下の programs.* 側。
-  # 除外（未使用のため管理対象外。nix にも brew にも入れない）:
-  #   golang-migrate(migrate=broken) / makeicns / ccusage / ki(別物・qtwebengine broken)
   home.packages = with pkgs; [
     # secrets ツール
     sops
@@ -23,20 +19,20 @@
     kubectl
 
     # dev CLI
-    act
     gh
     golangci-lint
     pre-commit
     protobuf
     gemini-cli
+    ghq
 
-    # editor / viewers（バイナリのみ・設定は既存流用）
+    # editor / viewers
     neovim
     bat
     eza
-    ripgrep # grep → rg
-    fd # find → fd
-    dust # du → dust
+    ripgrep
+    fd
+    dust
     tig
     tree
     jq
@@ -47,36 +43,34 @@
 
     # media / misc
     ffmpeg
-    libwebp # = brew の webp（cwebp/dwebp）
-    graphviz
+    libwebp
     plantuml
     qrencode
     cdrtools
-    dvdauthor
     gnupg
     gawk
     wget
-    inetutils # telnet 同梱
+    inetutils
     blueutil
     cocoapods
     watchman
-    llvm # 重い（~GB）。使っていなければ外してOK
   ];
 
-  # ============================ shell stack (mizchi 流) ============================
-  # 環境変数
   home.sessionVariables = {
     LANG = "ja_JP.UTF-8";
     KCODE = "u";
     CARAPACE_BRIDGES = "zsh,fish,bash,inshellisense";
     DIRENV_LOG_FORMAT = "";
-    _ZO_DOCTOR = "0"; # zoxide の初期化順 doctor 警告を抑制（mizchi 同様）
-    PNPM_HOME = "${config.home.homeDirectory}/Library/pnpm";
-    BUN_INSTALL = "${config.home.homeDirectory}/.bun";
+    _ZO_DOCTOR = "0";
+    PNPM_HOME = "$HOME/Library/pnpm";
+    BUN_INSTALL = "$HOME/.bun";
+    HOMEBREW_FORBIDDEN_FORMULAE="node python python3 pip npm pnpm yarn claude";
   };
 
-  # 各種 runtime / tool の bin を PATH に追加（hm-session-vars 経由で前方に積まれる）
   home.sessionPath = [
+    "$HOME/.nix-profile/bin"
+    "/run/current-system/sw/bin"
+    "$HOME/.local/bin"
     "$HOME/Library/pnpm"
     "$HOME/.deno/bin"
     "$HOME/.bun/bin"
@@ -84,37 +78,29 @@
     "$HOME/Library/Android/sdk/platform-tools"
     "$HOME/.lmstudio/bin"
     "$HOME/.antigravity/antigravity/bin"
-    "$HOME/.local/bin"
     "$HOME/go/bin"
   ];
 
   programs.zsh = {
     enable = true;
-    autosuggestion.enable = false; # sheldon の zsh-autosuggestions に任せる
-    syntaxHighlighting.enable = false; # sheldon の fast-syntax-highlighting に任せる
+    autosuggestion.enable = false;
+    syntaxHighlighting.enable = false;
     enableCompletion = true;
 
     shellAliases = {
-      # eza
       ls = "eza --icons -ahiluU --time-style=long-iso";
       ll = "eza --icons -l --git --time-style=long-iso";
       la = "eza --icons -ahiluU --git --time-style=long-iso";
-      # ripgrep / fd / dust
       grep = "rg";
       find = "fd";
       du = "dust";
-      # dir
-      lab = "cd ~/Laboratory";
-      # docker
       dc = "docker compose";
       de = "docker compose exec";
-      # gcp / firebase
       gab = "gcloud app browse";
       gpl = "gcloud projects list";
       fblogin = "firebase login";
       fblogout = "firebase logout";
       fbpl = "firebase projects:list";
-      # git（フル形のものは shell alias、git サブコマンド省略形は programs.git.settings.alias）
       g = "git";
       gs = "git status";
       ga = "git add";
@@ -122,7 +108,6 @@
       gd = "git diff";
       gco = "git checkout";
       gp = "git pull";
-      gcm = "gitmoji -c";
       sw = "git switch";
     };
 
@@ -135,42 +120,53 @@
       share = true;
     };
 
-    # .zprofile 相当（login shell）。brew shellenv / orbstack。
     profileExtra = ''
-      eval "$(/opt/homebrew/bin/brew shellenv)"
+      if [[ $(uname -m) == 'arm64' ]] && [[ $(uname -s) == 'Darwin' ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+      fi
       source ~/.orbstack/shell/init.zsh 2>/dev/null || :
     '';
 
-    # programs.* で表現できない手書き分だけ
     initContent = ''
-      export GPG_TTY=$TTY
       setopt auto_cd
       setopt auto_pushd
       setopt nobeep
 
-      # nix profile と nix-darwin の system bin を PATH 最前へ（.zprofile の brew より優先）。
-      # /run/current-system/sw/bin に darwin-rebuild 等が居る（nix.enable=false で /etc/zshrc を
-      # 触らせていないので、ここで明示的に通す）。
+      # .zprofile の brew shellenv が login shell ごとに brew を PATH 先頭へ前置し直すため、
+      # ここで毎シェル nix を先頭へ戻す（ネスト login shell の path_helper 対策も兼ねる）
       path=("$HOME/.nix-profile/bin" "/run/current-system/sw/bin" $path)
       typeset -U path
-
-      # gcloud SDK
-      if [ -d "$HOME/google-cloud-sdk" ]; then
-        source "$HOME/google-cloud-sdk/path.zsh.inc"
-        source "$HOME/google-cloud-sdk/completion.zsh.inc"
-      fi
 
       # bun completions
       [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
-      # sheldon（plugins は programs.sheldon で宣言）
-      eval "$(sheldon source)"
-
-      # zoxide（cd を乗っ取り、frecency ジャンプ）。非対話シェルで init すると
-      # Claude Code が動かなくなる現象があるため対話シェルのみで init する。
+      # zoxide（cd を乗っ取り、frecency ジャンプ）。非対話シェルで init すると Claude Code が動かなくなる現象があるため対話シェルのみで init する。
       if [[ $- == *i* ]]; then
         eval "$(zoxide init zsh --cmd cd)"
       fi
+
+      ghq() {
+        if [ $# -eq 0 ]; then
+          local repo_path
+          repo_path=$(command ghq list | fzf --height 40% --reverse)
+          if [[ -n "$repo_path" ]]; then
+            cd "$(command ghq root)/$repo_path"
+          fi
+        else
+          command ghq "$@"
+        fi
+      }
+
+      ghq-fzf_change_directory() {
+        local src=$(command ghq list | fzf --preview "eza -l -g -a --icons $(command ghq root)/{} | tail -n+4 | awk '{print \$6\"/\"\$8\" \"\$9 \" \" \$10}'")
+        if [ -n "$src" ]; then
+          BUFFER="cd $(command ghq root)/$src"
+          zle accept-line
+        fi
+        zle -R -c
+      }
+      zle -N ghq-fzf_change_directory
+      bindkey '^f' ghq-fzf_change_directory
 
       # 層1 secret: sops-nix が復号した 0400 ファイルから export（値は nix store に焼かれない）
       ${lib.concatMapStringsSep "\n      " (
@@ -180,31 +176,49 @@
   };
 
   # git 設定（旧 ~/.dotfiles/.gitconfig から移植。user.name/email は flake.nix の homeUser）。
-  programs.git.settings = {
-    alias = {
-      co = "checkout";
-      chk = "checkout";
-      cdev = "checkout -b develop origin/develop";
-      grh = "reset HEAD";
+  programs.git = {
+    enable = true;
+    ignores = [
+      "**/.claude/settings.local.json"
+      ".local/**"
+      "mise.local.toml"
+      ".mise.local.toml"
+      "apm_modules/"
+      ".frontend-review/"
+    ];
+    settings = {
+      alias = {
+        co = "checkout";
+        chk = "checkout";
+        cdev = "checkout -b develop origin/develop";
+        grh = "reset HEAD";
+      };
+      init.defaultBranch = "main";
+      branch.sort = "-committerdate";
+      tag.sort = "version:refname";
+      commit.gpgsign = true;
+      gpg.format = "ssh";
+      user.signingKey = "~/.ssh/id_github.pub";
+      url."git@github.com:".insteadOf = "https://github.com/";
+      commit.verbose = true;
+      push = {
+        default = "simple";
+        autoSetupRemote = true;
+        followTags = true;
+      };
+      fetch = {
+        prune = true;
+        pruneTags = true;
+        all = true;
+      };
+      pull.rebase = true;
+      help.autocorrect = "prompt";
     };
-    init.defaultBranch = "main";
-    push.autoSetupRemote = true;
-    # SSH 鍵でコミット署名（name/email は homeUser 側）
-    commit.gpgsign = true;
-    gpg.format = "ssh";
-    user.signingKey = "~/.ssh/id_github.pub";
-    # https の GitHub を ssh に書き換え
-    url."git@github.com:".insteadOf = "https://github.com/";
   };
 
-  # プロンプト（mizchi の設定: git_status を絵文字化）
   programs.starship = {
     enable = true;
     enableZshIntegration = true;
-    # テーマは ./starship.toml（旧 ~/.dotfiles/.config/starship.toml を復元したもの）を
-    # そのまま読み込む。home-manager がこれを ~/.config/starship.toml へ生成する
-    # ＝ settings をインラインで書くのと等価だが、nerd-font glyph 込みの大きなテーマは
-    # TOML のまま持つほうが編集しやすく写し間違いも防げる。変更後は home-manager switch。
     settings = builtins.fromTOML (builtins.readFile ./starship.toml);
   };
 
@@ -227,10 +241,6 @@
     flags = [ "--disable-up-arrow" ];
   };
 
-  # cd を zoxide が乗っ取り（frecency ジャンプ）。
-  # enableZshIntegration は使わず initContent 側で手動 init（下記）。
-  # 理由: 非対話シェルで zoxide init すると Claude Code が動かなくなる現象があるため、
-  # 対話シェル（$- に i を含む）でのみ init するようガードする。
   programs.zoxide = {
     enable = true;
     enableZshIntegration = false;
@@ -242,10 +252,17 @@
     enableZshIntegration = true;
   };
 
-  # runtime 管理（versions は既存の ~/.config/mise/config.toml をそのまま使う＝globalConfig 未指定）
   programs.mise = {
     enable = true;
     enableZshIntegration = true;
+    globalConfig = {
+      python = "3.12";
+      node = "24";
+      go = "latest";
+      pnpm = "latest";
+      bun = "latest";
+      uv = "latest";
+    };
   };
 
   # zsh プラグイン（autosuggestions / syntax-highlighting / ni）
@@ -256,11 +273,6 @@
       plugins = {
         zsh-autosuggestions.github = "zsh-users/zsh-autosuggestions";
         fast-syntax-highlighting.github = "zdharma-continuum/fast-syntax-highlighting";
-        # kiro-cli(旧 Fig)の autocomplete 代替。TAB で fzf の候補ポップアップ。
-        # 注: home-manager は plugins をアルファベット順に出力するため実際の読込順は
-        # fast-syntax-highlighting → fzf-tab → ni → zsh-autosuggestions。fzf-tab が
-        # widget を wrap する zsh-autosuggestions より前に来るので問題なし。
-        fzf-tab.github = "Aloxaf/fzf-tab";
         ni.github = "azu/ni.zsh";
       };
     };

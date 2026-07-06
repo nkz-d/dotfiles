@@ -48,16 +48,14 @@
       upgrade = false;
     };
 
-    # 使うものだけ: anthropics/tap（ant cask）と microsoft/apm（apm formula）。
-    # 他の taps は ⑤ cleanup で formula を nixpkgs 移行/撤去したため未宣言＝untap。
     taps = [
       "anthropics/tap"
       "microsoft/apm"
     ];
 
     brews = [
-      "mas" # masApps を入れるのに必要
-      "microsoft/apm/apm" # APM（このツールだけ brew 継続）
+      "mas"
+      "apm"
     ];
 
     casks = [
@@ -122,8 +120,13 @@
   # 要る項目もある。
   system.defaults = {
     NSGlobalDomain = {
+      AppleShowAllExtensions = true;
       InitialKeyRepeat = 11; # 入力開始までの待ち（小さいほど速い）
       KeyRepeat = 1; # リピート速度（小さいほど速い）
+    };
+    finder = {
+      AppleShowAllFiles = true;
+      ShowPathbar = true;
     };
     dock = {
       autohide = true;

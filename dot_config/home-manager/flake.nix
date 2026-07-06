@@ -43,11 +43,8 @@
             email = "14988862+nekoze1210@users.noreply.github.com";
           };
 
-      # 全 evaluation 経路で共有する overlay（mizchi の sharedOverlays に対応）。
       sharedOverlays = [
         (_: prev: {
-          # mise の test phase が aarch64-darwin で 1 件落ちる（bin/helper の mode
-          # assertion）ため doCheck を無効化（mizchi の direnv doCheck=false と同手法）。
           mise = prev.mise.overrideAttrs (_: {
             doCheck = false;
           });
@@ -55,7 +52,6 @@
       ];
 
       # home-manager 側の user モジュール（standalone と、③で足す nix-darwin module の
-      # 両方で再利用する）。mizchi の homeUser に対応。
       homeUser =
         { ... }:
         {
@@ -77,8 +73,6 @@
     in
     {
       # Standalone home-manager: `home-manager switch --flake .#macos`
-      # 出力名は固定 "macos"（mizchi 同様・マシン非依存）。内部の username/home は
-      # private（daikinagaoka / /Users/nekoze）なので挙動は変わらない。
       homeConfigurations.macos = home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
           inherit system;
