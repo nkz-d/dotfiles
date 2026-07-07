@@ -53,11 +53,16 @@ chezmoi init --apply nekoze1210/chezmoi-dotfiles
 # 4. Determinate Nix (flakes enabled by default). Open a new shell afterwards.
 curl -fsSL https://install.determinate.systems/nix | sh -s -- install
 
-# 5. home-manager (first activation — home-manager not on PATH yet).
-#    Installs CLI + shell stack + `op`; sops-nix decrypts secrets with
-#    ~/.ssh/id_github from step 1 ("no key could decrypt" here means that key
-#    is missing or not the recipient). Open a new terminal afterwards.
-nix run home-manager/master -- switch -b backup --flake ~/.config/home-manager#macos
+# 5. home-manager (first activation — home-manager not on PATH yet, so build
+#    the activationPackage from the flake.lock-pinned input and run it; same
+#    reasoning as step 6, and HOME_MANAGER_BACKUP_EXT is the env-var form of
+#    `switch -b backup`). Installs CLI + shell stack + `op`; sops-nix decrypts
+#    secrets with ~/.ssh/id_github from step 1 ("no key could decrypt" means
+#    that key is missing or not the recipient). Open a new terminal afterwards
+#    — `home-manager` itself is then on PATH (programs.home-manager.enable).
+cd ~/.config/home-manager
+nix build .#homeConfigurations.macos.activationPackage
+HOME_MANAGER_BACKUP_EXT=backup ./result/activate
 
 # 6. Sign in to the App Store via the GUI FIRST (mas cannot sign in from the
 #    CLI; if it fails anyway, sign in and re-run — it's idempotent. Xcode alone
@@ -96,7 +101,7 @@ The login shell is Apple's `/bin/zsh` (the macOS default — no `chsh` needed on
 | Bump flake inputs | — | `nix flake update` (in `dot_config/home-manager`; on a GitHub 403 prefix `NIX_CONFIG="access-tokens = github.com=$(gh auth token)"`) |
 | Format nix files | — | `nix fmt` (in `dot_config/home-manager`) |
 
-`nix run home-manager/master …` and the `nix build … && sudo ./result/sw/bin/darwin-rebuild` dance are only the **first-run** ways to invoke home-manager / nix-darwin before they are on `PATH`. After the first switch, use `home-manager switch` / `darwin-rebuild switch` directly (the commands in the table).
+The `nix build … && ./result/activate` / `nix build … && sudo ./result/sw/bin/darwin-rebuild` dances are only the **first-run** ways to invoke home-manager / nix-darwin before they are on `PATH`. After the first switch, use `home-manager switch` / `darwin-rebuild switch` directly (the commands in the table).
 
 ## Gotchas
 
