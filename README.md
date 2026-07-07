@@ -48,7 +48,7 @@ export PATH="$HOME/.local/bin:$PATH"
 #      installed yet … will retry next apply"). Expected on a fresh Mac: every
 #      file is already deployed at that point, and step 7's re-apply clears it
 #      once step 6 has installed espanso.
-chezmoi init --apply nekoze1210/chezmoi-dotfiles
+chezmoi init --apply nekoze1210/dotfiles
 
 # 4. Determinate Nix (flakes enabled by default). Open a new shell afterwards.
 curl -fsSL https://install.determinate.systems/nix | sh -s -- install
