@@ -10,6 +10,17 @@ if command -v brew >/dev/null 2>&1 || [ -x /opt/homebrew/bin/brew ]; then
   exit 0
 fi
 
+# NONINTERACTIVE の installer は `sudo -n` で権限チェックするため、sudo の
+# タイムスタンプが無い真っさらなマシンでは必ず落ちる。先にここで対話的に
+# sudo を取っておく（sudo は /dev/tty から読むので chezmoi 経由でも聞ける）。
+if ! /usr/bin/sudo -n -v 2>/dev/null; then
+  echo "[chezmoi] Homebrew の導入に管理者パスワードが必要です（sudo）" >&2
+  if ! /usr/bin/sudo -v; then
+    echo "[chezmoi] sudo 権限が取れません — $(id -un) が管理者アカウントか確認してください" >&2
+    exit 1
+  fi
+fi
+
 echo "[chezmoi] Installing Homebrew into /opt/homebrew ..." >&2
 NONINTERACTIVE=1 /bin/bash -c \
   "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
