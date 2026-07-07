@@ -5,7 +5,7 @@ with **sops-nix** and decrypted at `home-manager switch` activation, so plaintex
 never lands in the world-readable nix store.
 
 > There are **two independent age-based systems** in this repo — don't conflate them:
-> - **chezmoi age** (`~/.config/age/key.txt`, recipient `age1cfg…`): encrypts whole
+> - **chezmoi age** (`~/.config/age/key.txt`, recipient `age1pjeah6g…`): encrypts whole
 >   files that chezmoi deploys into `~` (`encrypted_*.age`). Decrypts at `chezmoi apply`.
 > - **sops-nix age** (this doc): encrypts *values* (env vars) the nix layer needs.
 >   Decrypts at home-manager activation. Uses a different identity (see below).
@@ -22,9 +22,10 @@ The **decryption key is never in the repo**: it is the SSH ed25519 private key
 `~/.ssh/id_github`, used directly as an age identity via `ssh-to-age`
 (`sops.age.sshKeyPaths` in `secrets.nix`). No dedicated age key is created.
 
-> Note: `~/.ssh` is a symlink to `~/.dotfiles/.ssh` (a separate, older dotfiles
-> repo). The private key physically lives there — make sure it is **not** committed
-> publicly in that repo. Back it up out-of-band (1Password etc.).
+> Note: `~/.ssh/config` is chezmoi-managed (`private_dot_ssh/`), but the keys
+> themselves are never in any repo (`.chezmoiignore` guards `.ssh/id_*`). Back
+> the key up out-of-band (1Password etc.) — it is the **only** sops recipient,
+> so losing it means `secrets/*.json` can never be decrypted again.
 
 ## Layers
 
@@ -67,8 +68,17 @@ name is picked up automatically once declared.
 
 ## New machine
 
-The private key is never put in the repo. Add the new machine's own key as a
-recipient so no private key is ever transported:
+Two ways to give a new machine decryption access. **Neither works from a fresh
+Mac alone**: `sops updatekeys` re-encrypts using an *existing* recipient's
+private key, so you always need a machine (or an out-of-band backup) that still
+holds a current key. Plan this while the old machine is alive.
+
+**A — restore the existing identity** (what the README first-run steps assume):
+copy `~/.ssh/id_github` (+ `.pub`) from 1Password / the old machine into
+`~/.ssh/`, `chmod 600`. No repo changes needed.
+
+**B — per-machine key, no private key ever transported** (preferable when both
+machines are alive; also gives per-machine revocation):
 
 ```sh
 # on the new machine
@@ -76,8 +86,8 @@ chezmoi init <this-dotfiles-repo>           # brings ciphertext + config
 ssh-keygen -t ed25519 -f ~/.ssh/id_xxx      # if it has no ed25519 key yet
 ssh-to-age -i ~/.ssh/id_xxx.pub             # -> age1... public key
 
-# add that age public key to dot_sops.yaml `keys:`, then on a machine that
-# already holds a key, re-encrypt to all recipients:
+# add that age public key to dot_sops.yaml `keys:`, then ON A MACHINE THAT
+# ALREADY HOLDS A CURRENT KEY (e.g. the old Mac), re-encrypt to all recipients:
 sops --config ~/.config/home-manager/.sops.yaml updatekeys secrets/global.json
 # commit + push, then on the new machine:
 chezmoi apply && home-manager switch --flake ~/.config/home-manager#macos

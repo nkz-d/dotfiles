@@ -27,9 +27,9 @@ xcode-select --install
 #    previous Mac. It is the sops-nix decryption identity (via ssh-to-age), the
 #    git signing key, and the ONLY sops recipient — a freshly generated key
 #    cannot decrypt secrets/*.json, and adding one as a recipient
-#    (`sops updatekeys`, see SECRETS.md) needs a machine that still holds the
-#    current key. So "generate a new key" is only an option while the old Mac
-#    is alive. (~/.ssh/config is chezmoi-managed and arrives in step 3 — no
+#    (`sops updatekeys`) needs a machine that still holds a current key: a
+#    two-machine protocol, documented as option B in SECRETS.md "New machine".
+#    So generating a new key is only an option while the old Mac is alive. (~/.ssh/config is chezmoi-managed and arrives in step 3 — no
 #    need to hand-write it; the key must be passphrase-less so sops-nix can
 #    decrypt non-interactively at activation.)
 mkdir -p ~/.ssh && chmod 700 ~/.ssh
