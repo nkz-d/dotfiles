@@ -48,6 +48,9 @@
       upgrade = false;
     };
 
+    # 非公式 tap は brew の trust が必要（無いと brew bundle が "untrusted tap"
+    # で落ちる）。.chezmoiscripts/run_once_before_install-brew.sh の
+    # `brew trust --tap` リストと対で保守すること。
     taps = [
       "anthropics/tap"
       "microsoft/apm"
