@@ -48,11 +48,6 @@
       upgrade = false;
     };
 
-    # 非公式 tap は trust が必要（Homebrew 6.0 で HOMEBREW_REQUIRE_TAP_TRUST が
-    # デフォルト有効になり、trust の無い third-party tap の formula/cask は
-    # brew bundle がロードを拒否する）。trusted = true で Brewfile の tap 行に
-    # `, trusted: true` が付き、その tap 由来の formula/cask も解決される
-    # （nix-darwin PR #1789, 2026-06-17）。
     taps = [
       {
         name = "anthropics/tap";
