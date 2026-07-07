@@ -1,14 +1,6 @@
 # Secrets (sops-nix)
 
-Secret management for the home-manager layer of this repo. Secrets are encrypted
-with **sops-nix** and decrypted at `home-manager switch` activation, so plaintext
-never lands in the world-readable nix store.
-
-> There are **two independent age-based systems** in this repo — don't conflate them:
-> - **chezmoi age** (`~/.config/age/key.txt`, recipient `age1pjeah6g…`): encrypts whole
->   files that chezmoi deploys into `~` (`encrypted_*.age`). Decrypts at `chezmoi apply`.
-> - **sops-nix age** (this doc): encrypts *values* (env vars) the nix layer needs.
->   Decrypts at home-manager activation. Uses a different identity (see below).
+Secret management for the home-manager layer of this repo. Secrets are encrypted with **sops-nix** and decrypted at `home-manager switch` activation, so plaintext never lands in the world-readable nix store.
 
 ## What lives in this repo vs. what does not
 
@@ -18,26 +10,17 @@ Only non-secret material is committed:
 - `secrets/*.json` — sops **ciphertext**. Encrypted, safe to publish.
 - `secrets.nix` — declarations and **paths** only, never values.
 
-The **decryption key is never in the repo**: it is the SSH ed25519 private key
-`~/.ssh/id_github`, used directly as an age identity via `ssh-to-age`
-(`sops.age.sshKeyPaths` in `secrets.nix`). No dedicated age key is created.
-
-> Note: `~/.ssh/config` is chezmoi-managed (`private_dot_ssh/`), but keys are
-> never in any repo (`.chezmoiignore` guards `.ssh/id_*`), never in 1Password
-> (which holds only the **chezmoi-age** key), and never copied between machines
-> — each machine's own key is enrolled as a recipient (see "New machine").
-> Losing **all** recipient keys makes `secrets/*.json` permanently
-> undecryptable, so keep the enrolled set non-empty at all times.
+The **decryption key is never in the repo**: it is the SSH ed25519 private key `~/.ssh/id_ed25519`, used directly as an age identity via `ssh-to-age` (`sops.age.sshKeyPaths` in `secrets.nix`). No dedicated age key is created.
 
 ## Layers
 
-| Layer | File | Scope | Delivery |
-|-------|------|-------|----------|
-| 1 — global personal | `secrets/global.json` (`EXAMPLE_TOKEN`) | every shell | declared in `secrets.nix`; sops-nix decrypts at activation to `config.sops.secrets.<name>.path` (mode 0400, outside the nix store); `secrets.nix` writes `~/.config/sops-export.sh` which `export`s each `$(<path)` |
-| 2 — project / per-repo | `secrets/personal.json` (empty) | one repo only | intended for per-repo direnv (`sops -d --extract` in `.envrc`) — **not wired yet** |
+| Layer                  | File                                    | Scope         | Delivery                                                                                                                                                                                                            |
+| ---------------------- | --------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 — global personal    | `secrets/global.json` (`EXAMPLE_TOKEN`) | every shell   | declared in `secrets.nix`; sops-nix decrypts at activation to `config.sops.secrets.<name>.path` (mode 0400, outside the nix store); `secrets.nix` writes `~/.config/sops-export.sh` which `export`s each `$(<path)` |
+| 2 — project / per-repo | `secrets/personal.json` (empty)         | one repo only | intended for per-repo direnv (`sops -d --extract` in `.envrc`) — **not wired yet**                                                                                                                                  |
 
-Decision rule for a new key: *do I want it in every shell unconditionally, or only
-while working in one repo?* When in doubt, prefer layer 2 (narrower scope).
+Decision rule for a new key: _do I want it in every shell unconditionally, or only
+while working in one repo?_ When in doubt, prefer layer 2 (narrower scope).
 
 ## Use a secret in your shell
 
@@ -57,7 +40,7 @@ Edit the ciphertext **in the chezmoi source dir** (recipients are read from the
 file's own metadata, so no `.sops.yaml` is needed for edits):
 
 ```sh
-cd ~/.local/share/chezmoi/dot_config/home-manager
+cd $(chezmoi source-path)/dot_config/home-manager
 sops secrets/global.json          # opens decrypted in $EDITOR; save re-encrypts
 # if adding a NEW name, also declare it in secrets.nix:
 #   sops.secrets.NEW_NAME = { };
@@ -71,11 +54,11 @@ name is picked up automatically once declared.
 ## New machine
 
 The adopted model is **one key per machine**: each machine generates its own
-`~/.ssh/id_github`, registers it with GitHub, and is enrolled as a sops
+`~/.ssh/id_ed25519`, registers it with GitHub, and is enrolled as a sops
 recipient. Private keys are never copied between machines, and a machine can
 be revoked individually.
 
-The catch: `sops updatekeys` re-encrypts using an *existing* recipient's
+The catch: `sops updatekeys` re-encrypts using an _existing_ recipient's
 private key, so enrolling a new machine always needs a machine that still
 holds a current key — **do the enrollment while the old machine is alive**.
 If no such machine is left, the emergency fallback is copying a surviving key
@@ -83,19 +66,8 @@ directly; 1Password holds only the chezmoi-age key, not SSH keys, and losing
 every recipient key means the ciphertext is gone for good.
 
 ```sh
-# on the new machine
-ssh-keygen -t ed25519 -f ~/.ssh/id_github -N "" -C "$(hostname -s)"
-# register ~/.ssh/id_github.pub with GitHub, then:
-ssh-to-age -i ~/.ssh/id_github.pub          # -> age1... public key
-
-# ON A MACHINE THAT ALREADY HOLDS A CURRENT KEY (e.g. the old Mac):
-cd ~/.local/share/chezmoi/dot_config/home-manager
-# add that age1... to dot_sops.yaml `keys:`, then re-encrypt to all recipients
-# (point --config at the SOURCE dot_sops.yaml — the deployed ~/.config/.../
-# .sops.yaml lags behind until the next chezmoi apply):
-sops --config dot_sops.yaml updatekeys secrets/global.json
-# commit + push, then on the new machine:
-chezmoi update && home-manager switch --flake ~/.config/home-manager#macos
+# register ~/.ssh/id_ed25519.pub with GitHub, then:
+ssh-to-age -i ~/.ssh/id_ed25519.pub          # -> age1... public key
 ```
 
 To revoke a lost machine: drop its recipient from `dot_sops.yaml`, run

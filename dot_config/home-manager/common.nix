@@ -64,8 +64,8 @@
     _ZO_DOCTOR = "0";
     PNPM_HOME = "$HOME/Library/pnpm";
     BUN_INSTALL = "$HOME/.bun";
-    # sops CLI 用: id_github を age identity に変換して渡す（sshKeyPaths は CLI に効かない）
-    SOPS_AGE_KEY_CMD = "ssh-to-age -private-key -i ${config.home.homeDirectory}/.ssh/id_github";
+    # sops CLI 用（CLI 組み込みの SSH 対応は agessh 流儀で ssh-to-age recipient を開けない）
+    SOPS_AGE_KEY_CMD = "ssh-to-age -private-key -i ${config.home.homeDirectory}/.ssh/id_ed25519";
     HOMEBREW_FORBIDDEN_FORMULAE="node python python3 pip npm pnpm yarn claude";
   };
 
@@ -200,7 +200,7 @@
       tag.sort = "version:refname";
       commit.gpgsign = true;
       gpg.format = "ssh";
-      user.signingKey = "~/.ssh/id_github.pub";
+      user.signingKey = "~/.ssh/id_ed25519.pub";
       url."git@github.com:".insteadOf = "https://github.com/";
       commit.verbose = true;
       push = {
