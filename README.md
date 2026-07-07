@@ -23,18 +23,22 @@ Design notes:
 #    clones. (Skip if `git --version` already works.)
 xcode-select --install
 
-# 1. RESTORE the SSH identity ~/.ssh/id_github (+ .pub) from 1Password or the
-#    previous Mac. It is the sops-nix decryption identity (via ssh-to-age), the
-#    git signing key, and the ONLY sops recipient — a freshly generated key
-#    cannot decrypt secrets/*.json, and adding one as a recipient
-#    (`sops updatekeys`) needs a machine that still holds a current key: a
-#    two-machine protocol, documented as option B in SECRETS.md "New machine".
-#    So generating a new key is only an option while the old Mac is alive. (~/.ssh/config is chezmoi-managed and arrives in step 3 — no
-#    need to hand-write it; the key must be passphrase-less so sops-nix can
-#    decrypt non-interactively at activation.)
+# 1. Generate THIS machine's own SSH key (one key per machine; private keys
+#    are never copied between machines and are NOT in 1Password — 1Password
+#    holds only the chezmoi-age key). Passphrase-less because sops-nix
+#    decrypts non-interactively at activation. ~/.ssh/config is
+#    chezmoi-managed and arrives in step 3 — no need to hand-write it.
 mkdir -p ~/.ssh && chmod 700 ~/.ssh
-# …place id_github / id_github.pub in ~/.ssh, then:
-chmod 600 ~/.ssh/id_github
+ssh-keygen -t ed25519 -f ~/.ssh/id_github -N "" -C "$(hostname -s)"
+#    Then enroll the key — BOTH must be done before step 5:
+#    a) register ~/.ssh/id_github.pub with GitHub (web UI or `gh ssh-key add`)
+#    b) make it a sops recipient. This half runs ON A MACHINE THAT STILL
+#       HOLDS A CURRENT RECIPIENT KEY (see SECRETS.md "New machine"): add the
+#       output of `ssh-to-age -i ~/.ssh/id_github.pub` to dot_sops.yaml, run
+#       `sops updatekeys secrets/global.json`, commit, push. If the push
+#       lands after step 3's clone, run `chezmoi update` here before step 5.
+#       No machine with a current key left = secrets/*.json is unrecoverable
+#       (the emergency fallback is copying a surviving key directly).
 
 # 2. chezmoi (curl-installed to ~/.local/bin).
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
@@ -105,7 +109,7 @@ The login shell is Apple's `/bin/zsh` (the macOS default — no `chsh` needed on
 ## Gotchas
 
 - **nix-darwin's `switch` requires root** — `sudo darwin-rebuild switch` is mandatory for the system layer; there is no sudo-free path. Touch ID makes it a fingerprint. The home-manager layer (most daily edits) needs **no sudo**.
-- **`~/.ssh/id_github`** (ed25519, no passphrase) is the sops-nix decryption identity and the only sops recipient — without it, `home-manager switch` fails at activation. It is never in this repo: `~/.ssh/config` **is** managed (`private_dot_ssh/`), but keys are restored out-of-band (1Password) and `.chezmoiignore` guards them against an accidental `chezmoi add`. Back the key up before wiping/returning the old machine, or `secrets/*.json` becomes permanently undecryptable.
+- **`~/.ssh/id_github`** (ed25519, no passphrase) is **per-machine**: each machine generates its own — it serves GitHub auth, git signing, and sops-nix decryption — and must be enrolled as a sops recipient via `sops updatekeys` run on a machine that already holds one (SECRETS.md "New machine"). Private keys are never in this repo, never in 1Password (which holds only the chezmoi-age key), and never copied between machines; `~/.ssh/config` **is** managed (`private_dot_ssh/`) and `.chezmoiignore` guards keys against an accidental `chezmoi add`. Keep the enrolled-machines set non-empty at all times: losing every recipient key makes `secrets/*.json` permanently undecryptable.
 - **A `chezmoi apply` on a machine without espanso exits 1 by design** (the espanso after-scripts fail loudly so chezmoi retries them next apply) — files are still deployed; run `sudo darwin-rebuild switch` then re-apply.
 - **OS username ≠ home dir** on the primary machine (`daikinagaoka` vs `/Users/nekoze`); identity comes from the chezmoi-generated `private.nix`, never derived from the username.
 - **brew cleanup is destructive** (`cleanup = "uninstall"`): a `darwin-rebuild switch` removes any brew formula/cask/tap not declared in `darwin.nix`.
