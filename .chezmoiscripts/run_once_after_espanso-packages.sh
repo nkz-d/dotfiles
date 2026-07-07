@@ -1,8 +1,17 @@
 #!/usr/bin/env sh
 # Installs espanso match packages via espanso's own package manager, instead of
-# hand-maintaining large trigger lists in this repo. chezmoi run_once_before
-# hook (runs once per machine/per script-content-change, before file apply and
-# before run_onchange_after_espanso-service.sh).
+# hand-maintaining large trigger lists in this repo. chezmoi run_once_after
+# hook: runs once per machine, AFTER file apply and alphabetically before
+# run_onchange_after_espanso-service.sh ("espanso-packages" < "espanso-service"),
+# so packages are in place before the service (re)starts.
+#
+# after_ (not before_) is load-bearing: on a fresh machine espanso doesn't
+# exist yet (the binary comes from the brew cask via `darwin-rebuild switch`),
+# so this exits 1 — but only after every file is already deployed. run_once_
+# state is recorded on success only, so chezmoi retries on the next apply.
+# As a before_ script this same guard deadlocked bootstrap: apply aborted
+# before deploying ~/.config/home-manager/, the very files nix needs to
+# eventually install espanso.
 #
 # "one file, one owning layer": this script owns package installation only;
 # match/packages/ itself is espanso-managed runtime state, not touched
