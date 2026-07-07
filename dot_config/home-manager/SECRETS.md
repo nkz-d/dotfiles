@@ -66,12 +66,21 @@ directly; 1Password holds only the chezmoi-age key, not SSH keys, and losing
 every recipient key means the ciphertext is gone for good.
 
 ```sh
-# register ~/.ssh/id_ed25519.pub with GitHub, then:
+# on the new machine — register ~/.ssh/id_ed25519.pub with GitHub, then:
 ssh-to-age -i ~/.ssh/id_ed25519.pub          # -> age1... public key
+
+# on a machine that already holds a current key — add that age1... to
+# dot_sops.yaml `keys:`, then re-encrypt (--config is required: the source
+# file is named dot_sops.yaml, so sops can't auto-discover it; and only
+# real sops files can be listed — secrets/personal.json is an empty
+# placeholder and would fail):
+cd $(chezmoi source-path)/dot_config/home-manager
+sops --config dot_sops.yaml updatekeys secrets/global.json
+# commit + push; the new machine picks it up with `chezmoi update`
 ```
 
-To revoke a lost machine: drop its recipient from `dot_sops.yaml`, run
-`sops updatekeys`, commit. Rotate the secret values too if it may have been compromised.
+To revoke a lost machine: drop its recipient from `dot_sops.yaml`, run the same
+`updatekeys` command, commit. Rotate the secret values too if it may have been compromised.
 
 ## Gotchas
 

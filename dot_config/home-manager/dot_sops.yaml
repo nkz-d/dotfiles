@@ -1,7 +1,7 @@
 keys:
-  - &nekoze age1pansh2uhu8ec468669a7jyn4nahhzuxqqtd3aqrq7jchng5tnursmedxza
+  - &nekoze-mbp14 age1a8p6px964a0x0lctvsm00evc5efn38vngrj0dgax4t7raf5sycxqfw3kek
 creation_rules:
   - path_regex: secrets/.*\.(ya?ml|json)$
     key_groups:
       - age:
-          - *nekoze
+          - *nekoze-mbp14
