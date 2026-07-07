@@ -64,6 +64,8 @@
     _ZO_DOCTOR = "0";
     PNPM_HOME = "$HOME/Library/pnpm";
     BUN_INSTALL = "$HOME/.bun";
+    # sops CLI 用: id_github を age identity に変換して渡す（sshKeyPaths は CLI に効かない）
+    SOPS_AGE_KEY_CMD = "ssh-to-age -private-key -i ${config.home.homeDirectory}/.ssh/id_github";
     HOMEBREW_FORBIDDEN_FORMULAE="node python python3 pip npm pnpm yarn claude";
   };
 
