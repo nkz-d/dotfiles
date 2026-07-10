@@ -15,6 +15,8 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # LLM エージェント CLI 群（herdr 等）。follows は付けない方針（上流推奨・キャッシュ互換）
+    llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
   outputs =
@@ -24,6 +26,7 @@
       home-manager,
       nix-darwin,
       sops-nix,
+      llm-agents,
       ...
     }:
     let
@@ -56,6 +59,10 @@
           mise = prev.mise.overrideAttrs (_: {
             doCheck = false;
           });
+          # nixpkgs の herdr は darwin でビルド不能（vendored libghostty-vt の
+          # zig build が sandbox 内で Darwin SDK を見つけられない）。
+          # llm-agents.nix は darwin では上流リリースバイナリを使うのでそちらを採用
+          herdr = llm-agents.packages.${prev.stdenv.hostPlatform.system}.herdr;
         })
       ];
 

@@ -269,6 +269,13 @@
     };
   };
 
+  # agent multiplexer。package は flake.nix の overlay で llm-agents.nix 版に差し替え済み。
+  # settings → ~/.config/herdr/config.toml（https://herdr.dev/docs/configuration/）
+  programs.herdr = {
+    enable = true;
+    settings = { };
+  };
+
   # zsh プラグイン（autosuggestions / syntax-highlighting / ni）
   programs.sheldon = {
     enable = true;
