@@ -154,5 +154,13 @@
         TrackpadThreeFingerDrag = true;
       };
     };
+
+    # システム側（root で defaults write）。
+    CustomSystemPreferences = {
+      # IME 切り替え時のカーソル横ポップアップ（Sonoma 以降の入力インジケータ）を無効化
+      "/Library/Preferences/FeatureFlags/Domain/UIKit" = {
+        redesigned_text_cursor.Enabled = false;
+      };
+    };
   };
 }
