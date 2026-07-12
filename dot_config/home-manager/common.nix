@@ -234,6 +234,8 @@
   programs.fzf = {
     enable = true;
     enableZshIntegration = true;
+    # Ctrl-R は atuin が持つので fzf の履歴ウィジェットは外す（Ctrl-T / Alt-C は残る）
+    historyWidget.command = "";
   };
 
   # 履歴検索（Ctrl-R を atuin が置換。↑キーは奪わない）
