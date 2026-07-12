@@ -274,7 +274,24 @@
   # agent multiplexer。settings → ~/.config/herdr/config.toml（https://herdr.dev/docs/configuration/）
   programs.herdr = {
     enable = true;
-    settings = { };
+    settings = {
+      ui.toast.clipboard.enabled = false;
+      keys = {
+        prefix = "ctrl+b";
+        cycle_pane_previous = [
+          "prefix+shift+tab"
+          "prefix+o"
+        ];
+        previous_workspace = [
+          "prefix+up"
+          "prefix+u"
+        ];
+        next_workspace = [
+          "prefix+down"
+          "prefix+i"
+        ];
+      };
+    };
   };
 
   # zsh プラグイン（autosuggestions / syntax-highlighting / ni）
