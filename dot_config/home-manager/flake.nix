@@ -15,8 +15,8 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # LLM エージェント CLI 群（herdr 等）。follows は付けない方針（上流推奨・キャッシュ互換）
-    llm-agents.url = "github:numtide/llm-agents.nix";
+    # 一時 input: herdr 0.7.3 用（overlay 参照）。本体 bump 時に撤去
+    nixpkgs-herdr.url = "github:nixos/nixpkgs/nixpkgs-unstable";
   };
 
   outputs =
@@ -26,7 +26,7 @@
       home-manager,
       nix-darwin,
       sops-nix,
-      llm-agents,
+      nixpkgs-herdr,
       ...
     }:
     let
@@ -59,10 +59,10 @@
           mise = prev.mise.overrideAttrs (_: {
             doCheck = false;
           });
-          # nixpkgs の herdr は darwin でビルド不能（vendored libghostty-vt の
-          # zig build が sandbox 内で Darwin SDK を見つけられない）。
-          # llm-agents.nix は darwin では上流リリースバイナリを使うのでそちらを採用
-          herdr = llm-agents.packages.${prev.stdenv.hostPlatform.system}.herdr;
+          # herdr だけ新しい nixpkgs から取る（本体 pin の bump は Hydra の darwin
+          # キャッシュ不足 + Tahoe の cctools ld クラッシュで時期尚早。整い次第
+          # 本体を bump してこの input ごと撤去する）
+          herdr = nixpkgs-herdr.legacyPackages.${prev.stdenv.hostPlatform.system}.herdr;
         })
       ];
 
