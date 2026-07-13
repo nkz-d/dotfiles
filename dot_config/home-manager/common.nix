@@ -276,6 +276,7 @@
     enable = true;
     settings = {
       ui.toast.clipboard.enabled = false;
+      ui.prompt_new_tab_name = false;
       keys = {
         prefix = "ctrl+b";
         cycle_pane_previous = [
@@ -290,6 +291,8 @@
           "prefix+down"
           "prefix+i"
         ];
+        next_agent = "prefix+a";
+        previous_agent = "prefix+shift+a";
       };
     };
   };
