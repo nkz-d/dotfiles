@@ -183,6 +183,8 @@
     ignores = [
       "**/.claude/settings.local.json"
       ".local/**"
+      "mise.toml"
+      ".mise.toml"
       "mise.local.toml"
       ".mise.local.toml"
       "apm_modules/"
