@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "xhigh",
+  "enabledPlugins": {
+    "example-skills@anthropic-agent-skills": true
+  },
+  "env": {
+    "DISABLE_ZOXIDE": "1"
+  },
+  "extraKnownMarketplaces": {},
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "bash '{{ .chezmoi.homeDir }}/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10,
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ]
+  },
+  "includeCoAuthoredBy": true,
+  "language": "日本語",
+  "permissions": {
+    "defaultMode": "{{ .claude_default_mode | default "acceptEdits" }}"
+  },
+  "remoteControlAtStartup": false,
+  "skipAutoPermissionPrompt": true,
+  "skipDangerousModePermissionPrompt": true,
+  "tui": "default"
+}
