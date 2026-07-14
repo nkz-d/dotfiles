@@ -73,6 +73,7 @@
       "chatgpt"
       "clipy"
       "codex"
+      "cursor"
       "discord"
       "espanso"
       "expo-orbit"
