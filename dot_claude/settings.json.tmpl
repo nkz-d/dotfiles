@@ -8,7 +8,8 @@
   },
   "effortLevel": "xhigh",
   "enabledPlugins": {
-    "example-skills@anthropic-agent-skills": true
+    "example-skills@anthropic-agent-skills": true,
+    "mv-claude-code-history@nekoze-skills": true
   },
   "env": {
     "DISABLE_ZOXIDE": "1",
@@ -16,7 +17,14 @@
     "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "0",
     "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1"
   },
-  "extraKnownMarketplaces": {},
+  "extraKnownMarketplaces": {
+    "nekoze-skills": {
+      "source": {
+        "source": "github",
+        "repo": "nekoze1210/skills"
+      }
+    }
+  },
   "hooks": {
     "SessionStart": [
       {
