@@ -28,7 +28,7 @@ ssh-keygen -t ed25519 -N "" -C "$(hostname -s)" -f ~/.ssh/id_ed25519
 # 3. Bootstrap chezmoi
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
 export PATH="$HOME/.local/bin:$PATH"
-chezmoi init --apply nekoze1210/dotfiles.git
+chezmoi init --apply nkz-d/dotfiles.git
 
 # 4. Install Nix (Determinate Systems installer recommended).
 curl -fsSL https://install.determinate.systems/nix | sh -s -- install

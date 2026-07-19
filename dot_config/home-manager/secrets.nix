@@ -7,7 +7,7 @@
 { config, ... }:
 {
   sops = {
-    # 絶対パスをハードコードしない: home が /Users/nekoze でないマシン
+    # 絶対パスをハードコードしない: home の場所が標準と異なるマシン
     # （username≠home の逆パターン含む）でも復号鍵を見つけられるように。
     age.sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
 

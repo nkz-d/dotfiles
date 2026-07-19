@@ -39,20 +39,11 @@
       };
 
       # マシン固有の identity。chezmoi が apply 時に private.nix.tmpl から
-      # ~/.config/home-manager/private.nix を生成する（username=.chezmoi.username,
-      # homeDirectory=.chezmoi.homeDir, git=init プロンプト）。private.nix が無い
-      # 環境では下のフォールバックを使う。
-      private =
-        if builtins.pathExists ./private.nix then
-          import ./private.nix
-        else
-          {
-            username = "daikinagaoka";
-            homeDirectory = "/Users/nekoze";
-            gitName = "nekoze";
-            email = "14988862+nekoze1210@users.noreply.github.com";
-            githubUsername = "nekoze1210";
-          };
+      # identity は chezmoi が private.nix.tmpl から生成する private.nix から取る
+      # （username=.chezmoi.username, homeDirectory=.chezmoi.homeDir, git=init プロンプト）。
+      # private.nix はコミットしない（個人情報を平文でリポジトリに置かない）ので、flake の
+      # 評価・switch は chezmoi apply 済みの ~/.config/home-manager で行うこと。
+      private = import ./private.nix;
 
       sharedOverlays = [
         (_: prev: {

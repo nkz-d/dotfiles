@@ -8,7 +8,7 @@
   system.primaryUser = private.username;
 
   # ホームは通常 username から導出する (/Users/<username>)。ただし username と
-  # ホーム名が食い違う環境（今の機体: user=daikinagaoka / home=/Users/nekoze）の
+  # ホーム名が食い違う環境（OS ユーザー名 ≠ $HOME の basename の機体）の
   # ときだけ private.homeDirectory（= chezmoi の .chezmoi.homeDir）へフォールバック。
   users.users.${private.username} = {
     name = private.username;

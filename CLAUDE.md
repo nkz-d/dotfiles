@@ -82,12 +82,12 @@ This repo uses **two independent age-based encryption systems**. Don't conflate 
 
 `.chezmoi.toml.tmpl` prompts on `chezmoi init` and stores the answers in chezmoi data, usable as `{{ .github_username }}` etc. in any `*.tmpl` source file:
 
-- `github_username` (default `nekoze1210`)
+- `github_username` (default `nkz-d`)
 - `claude_default_mode` (default `auto`)
 - `git_name` (default = `github_username`)
 - `git_email` (default = GitHub noreply)
 
-`git_name`/`git_email` (plus the machine's `.chezmoi.username` / `.chezmoi.homeDir`) are rendered by `private.nix.tmpl` into `~/.config/home-manager/private.nix`, which `flake.nix` imports to set `home.username`, `home.homeDirectory`, and `programs.git`. The real email therefore lives only in `~/.config/chezmoi/chezmoi.toml`, never in the committed repo. Note: OS username is `daikinagaoka` but `$HOME` is `/Users/nekoze` — they differ, so home-manager takes `home.homeDirectory` from `private.homeDirectory` directly, and `darwin.nix` uses `/Users/<username>` as the standard with a fallback to `private.homeDirectory` when they differ.
+`git_name`/`git_email` (plus the machine's `.chezmoi.username` / `.chezmoi.homeDir`) are rendered by `private.nix.tmpl` into `~/.config/home-manager/private.nix`, which `flake.nix` imports to set `home.username`, `home.homeDirectory`, and `programs.git`. The real email therefore lives only in `~/.config/chezmoi/chezmoi.toml`, never in the committed repo. Note: on some machines the OS username and the `$HOME` basename differ, so home-manager takes `home.homeDirectory` from `private.homeDirectory` directly, and `darwin.nix` uses `/Users/<username>` as the standard with a fallback to `private.homeDirectory` when they differ.
 
 ## Current state / gotchas
 
@@ -95,7 +95,7 @@ This repo uses **two independent age-based encryption systems**. Don't conflate 
 - `~/.ssh/config` is managed here (`private_dot_ssh/private_config`) — needed at bootstrap so a fresh machine can talk to GitHub over SSH. The **keys themselves are never committed** (`.chezmoiignore` guards `.ssh/id_*` etc.) and are **per-machine**: each machine generates its own `~/.ssh/id_ed25519` (GitHub auth + git signing + sops-nix decryption) and must be enrolled as a sops recipient via `sops updatekeys` run on a machine that already holds one (SECRETS.md "New machine"). 1Password holds only the chezmoi-age key, never SSH keys.
 - **Determinate Nix is the Nix install**, so `darwin.nix` sets `nix.enable = false` and `programs.zsh.enable = false` (don't let nix-darwin fight over `/etc/nix/nix.conf` or `/etc/zshrc`). Consequence: `/run/current-system/sw/bin` (where `darwin-rebuild` lives) is put on PATH by `common.nix`'s `programs.zsh.initContent`, not by nix-darwin.
 - **home-manager is standalone, not a nix-darwin module** (no `useUserPackages`), so home packages live in `~/.nix-profile/bin`; `common.nix` prepends that ahead of `/opt/homebrew/bin` so nix tools beat brew.
-- **OS username `daikinagaoka` ≠ `$HOME` `/Users/nekoze`** — never derive home from the username (`private.nix.tmpl` takes them from `.chezmoi.username` / `.chezmoi.homeDir` separately).
+- **The OS username can differ from the `$HOME` basename** (true on some machines) — never derive home from the username (`private.nix.tmpl` takes them from `.chezmoi.username` / `.chezmoi.homeDir` separately).
 - `homebrew.onActivation.cleanup = "none"` — nix-darwin won't uninstall brew/casks not listed. Switch to `"uninstall"` to prune migrated formulae.
 - Dropped from the Brewfile→nix migration (unused / not in nixpkgs / broken): `golang-migrate` (nixpkgs `migrate` is broken), `makeicns`, `ccusage`, `ki`. `mise` needs the `doCheck=false` overlay (a test fails on darwin).
 
