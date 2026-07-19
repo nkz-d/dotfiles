@@ -47,5 +47,9 @@
   "remoteControlAtStartup": false,
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
-  "tui": "default"
+  "tui": "default",
+  "statusLine": {
+    "type": "command",
+    "command": "'{{ .chezmoi.homeDir }}/.claude/scripts/runcat-statusline.py'"
+  }
 }
