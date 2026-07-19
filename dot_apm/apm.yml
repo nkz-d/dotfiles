@@ -1,0 +1,12 @@
+name: nkz
+version: 1.0.0
+description: APM project for nkz
+author: nekoze
+targets:
+  - claude
+  - codex
+dependencies:
+  apm:
+    - nkz-d/skills/skills/project-setup#8ca1c044a3dde03eb51887d6cd1bec79892b8dab
+  mcp: []
+scripts: {}

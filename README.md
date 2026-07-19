@@ -57,6 +57,9 @@ ssh -T git@github.com
 | CLI package / shell / `programs.*` / git        | `dot_config/home-manager/common.nix`               | `home-manager switch --flake ~/.config/home-manager#macos`        |
 | A secret value                                  | `sops dot_config/home-manager/secrets/global.json` | `home-manager switch --flake ~/.config/home-manager#macos`        |
 | macOS setting / Homebrew cask·mas·tap           | `dot_config/home-manager/darwin.nix`               | `sudo darwin-rebuild switch --flake ~/.config/home-manager#macos` |
+| APM skill (Claude / Codex, user-scope)          | `dot_apm/apm.yml` → `dependencies.apm`             | `chezmoi apply -v`                                                |
+
+> **APM skills:** on `chezmoi apply`, a `run_onchange_` hook runs `apm install -g --target <apm.yml targets>` to deploy each declared skill into user scope (`~/.agents/skills/`, `~/.claude/skills/`). Pin deps as `<owner/repo/path>#<sha>`. If you edit the manifest with `apm install -g <pkg>` directly, re-capture it with `chezmoi re-add ~/.apm/apm.yml`. The lockfile and `apm_modules/` are per-machine (regenerated, gitignored) — the pinned commit in `apm.yml` is the reproducibility anchor.
 
 See [`CLAUDE.md`](CLAUDE.md) for the full architecture/working notes and [`dot_config/home-manager/SECRETS.md`](dot_config/home-manager/SECRETS.md) for the secrets workflow.
 

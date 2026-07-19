@@ -14,6 +14,17 @@ README.md
 **/target
 **/.mooncakes
 
+# APM per-machine build output under ~/.apm. Only the contract (dot_apm/apm.yml)
+# is managed; the lockfile and resolved packages are regenerated on each machine
+# by run_onchange_after_apm-install (apm install -g). apm.lock.yaml is machine-
+# specific (its deployed_files depend on which assistants are installed) and the
+# pinned commit in apm.yml is the reproducibility anchor, so the lock is NOT
+# committed. Defensive guards so a stray copy in the source dir is never pushed
+# into ~ (e.g. after an accidental `chezmoi add ~/.apm/...`).
+.apm/apm.lock.yaml
+.apm/apm_modules
+.apm/apm_modules/**
+
 # Security-sensitive skills kept out of public dotfiles.
 # npm-release contains GitHub App IDs, release automation details,
 # and distribution scripts that are useful for attackers targeting the

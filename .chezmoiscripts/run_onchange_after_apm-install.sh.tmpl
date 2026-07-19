@@ -1,0 +1,49 @@
+#!/usr/bin/env sh
+# Deploy the APM skills declared in ~/.apm/apm.yml into user scope (~/) for the
+# targets declared in that manifest. `apm install -g` reads the global manifest
+# at ~/.apm/apm.yml regardless of CWD and links each skill into its user-scope
+# home (~/.agents/skills/ as the canonical copy, plus per-client dirs such as
+# ~/.claude/skills/).
+#
+# Why the explicit --target: a bare `apm install -g` ignores the manifest's
+# `targets:` for skill *deployment* and instead auto-links every code assistant
+# it detects on the machine (e.g. Windsurf under ~/.codeium), so the deployed
+# set — and thus ~/.apm/apm.lock.yaml — becomes machine-dependent. Passing the
+# manifest's targets as --target (rendered below) pins deployment to exactly the
+# declared clients on every machine, honouring the contract and keeping the run
+# idempotent (a true no-op once in sync — no lockfile churn).
+#
+# run_onchange_ => chezmoi re-runs this only when its *rendered content* changes;
+# the apm.yml hash embedded below (and the --target list, also derived from
+# apm.yml) is what makes a manifest edit count as "this script changed". after_
+# pins it to run after normal file application, so ~/.apm/apm.yml is on disk.
+#
+# "one file, one owning layer": nix-darwin (homebrew microsoft/apm) owns the apm
+# *binary*; dot_apm/apm.yml owns the dependency contract; this script owns the
+# user-scope deploy. apm.lock.yaml + apm_modules/ are per-machine build output
+# (regenerated here, gitignored, never chezmoi-managed) — the pinned commit in
+# apm.yml is the reproducibility anchor, not the lock. Binary install is NOT
+# handled here, so on a fresh machine apm may not exist yet: the guard below
+# fails loudly (exit 1) rather than skipping, so chezmoi retries automatically on
+# the next apply once `darwin-rebuild switch` has installed apm.
+#
+# apm.yml hash (do not remove — this is what triggers re-runs on change):
+# {{ include "dot_apm/apm.yml" | sha256sum }}
+set -eu
+
+# Homebrew bin is not guaranteed on PATH in chezmoi's non-interactive script env.
+export PATH="/opt/homebrew/bin:${PATH}"
+
+if ! command -v apm >/dev/null 2>&1; then
+  echo "[chezmoi] apm not installed yet — EXPECTED during first bootstrap; ~/.apm/apm.yml IS deployed. Run 'sudo darwin-rebuild switch' to install apm, then re-apply." >&2
+  exit 1
+fi
+
+targets='{{ include "dot_apm/apm.yml" | fromYaml | dig "targets" list | join "," }}'
+if [ -z "${targets}" ]; then
+  echo "[chezmoi] no 'targets:' declared in ~/.apm/apm.yml — nothing to deploy." >&2
+  exit 0
+fi
+
+echo "[chezmoi] Deploying user-scope APM skills to: ${targets}" >&2
+apm install -g --target "${targets}"
