@@ -18,7 +18,7 @@
 # apm.yml) is what makes a manifest edit count as "this script changed". after_
 # pins it to run after normal file application, so ~/.apm/apm.yml is on disk.
 #
-# "one file, one owning layer": nix-darwin (homebrew microsoft/apm) owns the apm
+# "one file, one owning layer": nix-darwin (homebrew microsoft/apm/apm) owns the apm
 # *binary*; dot_apm/apm.yml owns the dependency contract; this script owns the
 # user-scope deploy. apm.lock.yaml + apm_modules/ are per-machine build output
 # (regenerated here, gitignored, never chezmoi-managed) — the pinned commit in

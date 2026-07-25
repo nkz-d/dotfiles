@@ -32,7 +32,7 @@
   # --------------------------------------------------------------------------
   # Homebrew bridge — casks / mas / taps を宣言的に管理する（③ の主目的）。
   # cleanup = "uninstall": この宣言(Brewfile)に無い brew/cask は uninstall される
-  # ＝宣言が source of truth。CLI は nixpkgs へ移行済みなので brews は mas のみ。
+  # ＝宣言が source of truth。CLI は nixpkgs へ移行済みで、brews は mas と apm のみ。
   # 意図的に「ここに置かない」もの（cleanup で撤去される）:
   #   - chezmoi: curl(get.chezmoi.io)で ~/.local/bin に入れる前提
   #   - zsh: Apple 標準 /bin/zsh を使う（chsh で切替。brew zsh は撤去）
@@ -53,15 +53,13 @@
         name = "anthropics/tap";
         trusted = true;
       }
-      {
-        name = "microsoft/apm";
-        trusted = true;
-      }
     ];
 
+    # apm は microsoft が tap 分離をやめ `brew install microsoft/apm/apm` を推奨に
+    # 変更したため、完全修飾名で宣言する（brew が microsoft/apm を自動 tap する）。
     brews = [
       "mas"
-      "apm"
+      "microsoft/apm/apm"
     ];
 
     casks = [
