@@ -210,7 +210,20 @@
       commit.gpgsign = true;
       gpg.format = "ssh";
       user.signingKey = "~/.ssh/id_ed25519.pub";
-      url."git@github.com:".insteadOf = "https://github.com/";
+      # push だけ SSH へ書き換え、clone/fetch は HTTPS のまま残す。これにより
+      # 初回 SSH 鍵登録前でも public リポジトリ（この dotfiles 含む）を pull でき、
+      # ブートストラップの「insteadOf で pull が SSH 化けして詰む」問題を防ぐ。
+      url."git@github.com:".pushInsteadOf = "https://github.com/";
+      # private リポジトリの HTTPS fetch/clone は gh の token で認証（gh auth login 前提）。
+      # 先頭の空文字は継承された helper をリセットするための gh 標準イディオム。
+      credential."https://github.com".helper = [
+        ""
+        "!${pkgs.gh}/bin/gh auth git-credential"
+      ];
+      credential."https://gist.github.com".helper = [
+        ""
+        "!${pkgs.gh}/bin/gh auth git-credential"
+      ];
       commit.verbose = true;
       push = {
         default = "simple";
