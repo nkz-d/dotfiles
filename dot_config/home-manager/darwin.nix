@@ -92,6 +92,7 @@
       "obsidian"
       "orbstack"
       "raycast"
+      "tailscale-app"
       "visual-studio-code"
     ];
 
