@@ -29,6 +29,7 @@
     protobuf
     gemini-cli
     ghq
+    hyperfine
 
     # editor / viewers
     neovim
