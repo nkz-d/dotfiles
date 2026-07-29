@@ -73,7 +73,6 @@
       "codex"
       "cursor"
       "discord"
-      "espanso"
       "expo-orbit"
       "figma"
       "font-fira-code-nerd-font"
