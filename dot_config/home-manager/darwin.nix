@@ -102,7 +102,7 @@
       "Developer" = 640199958;
       "GarageBand" = 682658836;
       "iMovie" = 408981434;
-      "Keynote" = 409183694;
+      "Keynote" = 361285480;
       "Kindle" = 302584613;
       "LINE" = 539883307;
       "Magnet" = 441258766;
