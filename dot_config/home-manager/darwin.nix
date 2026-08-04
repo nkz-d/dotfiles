@@ -65,6 +65,7 @@
     casks = [
       "1password"
       "alt-tab"
+      "android-studio"
       "anthropics/tap/ant"
       "blackhole-16ch"
       "blender"
