@@ -25,6 +25,8 @@
     # dev CLI
     gh
     golangci-lint
+    lefthook
+    maestro
     pre-commit
     protobuf
     gemini-cli
