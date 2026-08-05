@@ -65,6 +65,18 @@
     casks = [
       "1password"
       "alt-tab"
+      # 新機種の bootstrap 専用。sdkmanager/avdmanager は ANDROID_HOME を無視して
+      # 「自分の居場所」から SDK root を決めるので、cask 版を PATH に置くと
+      # /opt/homebrew/share/... 側へ二重に SDK を作ってしまう。no_binaries で
+      # /opt/homebrew/bin へのリンクを張らせず、日常使いは SDK root 側
+      # (~/Library/Android/sdk/cmdline-tools/latest/bin) に一本化する。
+      # 新機種では次の 1 回だけ cask 版を直に叩いて SDK root 側を用意する:
+      #   /opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/sdkmanager \
+      #     --sdk_root="$ANDROID_HOME" "cmdline-tools;latest"
+      {
+        name = "android-commandlinetools";
+        args.no_binaries = true;
+      }
       "android-studio"
       "anthropics/tap/ant"
       "blackhole-16ch"

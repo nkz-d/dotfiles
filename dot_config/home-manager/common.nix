@@ -33,6 +33,10 @@
     ghq
     hyperfine
 
+    # JVM（Android SDK の sdkmanager / gradle が要求する。macOS 標準の
+    # /usr/bin/java はスタブで実体を持たない）
+    temurin-bin-21
+
     # editor / viewers
     neovim
     bat
@@ -74,6 +78,12 @@
     # sops CLI 用（CLI 組み込みの SSH 対応は agessh 流儀で ssh-to-age recipient を開けない）
     SOPS_AGE_KEY_CMD = "ssh-to-age -private-key -i ${config.home.homeDirectory}/.ssh/id_ed25519";
     HOMEBREW_FORBIDDEN_FORMULAE = "node python python3 pip npm pnpm yarn claude";
+    # Android SDK は Android Studio が管理する ~/Library/Android/sdk に一本化する
+    # （brew cask の cmdline-tools 既定 root ではなくこちらを使わせる）。
+    # ANDROID_SDK_ROOT は非推奨だが gradle plugin / maestro 等が今も見るので両方置く。
+    ANDROID_HOME = "$HOME/Library/Android/sdk";
+    ANDROID_SDK_ROOT = "$HOME/Library/Android/sdk";
+    JAVA_HOME = "${pkgs.temurin-bin-21.home}";
   };
 
   home.sessionPath = [
@@ -85,6 +95,8 @@
     "$HOME/.bun/bin"
     "$HOME/.foundry/bin"
     "$HOME/Library/Android/sdk/platform-tools"
+    "$HOME/Library/Android/sdk/emulator"
+    "$HOME/Library/Android/sdk/cmdline-tools/latest/bin"
     "$HOME/.lmstudio/bin"
     "$HOME/.antigravity/antigravity/bin"
     "$HOME/go/bin"
