@@ -148,55 +148,70 @@
       source ~/.orbstack/shell/init.zsh 2>/dev/null || :
     '';
 
-    initContent = ''
-      setopt auto_cd
-      setopt auto_pushd
-      setopt nobeep
+    initContent = lib.mkMerge [
+      (lib.mkOrder 1000 ''
+        setopt auto_cd
+        setopt auto_pushd
+        setopt nobeep
 
-      # .zprofile の brew shellenv が login shell ごとに brew を PATH 先頭へ前置し直すため、
-      # ここで毎シェル nix を先頭へ戻す（ネスト login shell の path_helper 対策も兼ねる）
-      path=("$HOME/.nix-profile/bin" "/run/current-system/sw/bin" $path)
-      typeset -U path
+        # .zprofile の brew shellenv が login shell ごとに brew を PATH 先頭へ前置し直すため、
+        # ここで毎シェル nix を先頭へ戻す（ネスト login shell の path_helper 対策も兼ねる）
+        path=("$HOME/.nix-profile/bin" "/run/current-system/sw/bin" $path)
+        typeset -U path
 
-      # bun completions
-      [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+        # bun completions
+        [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
-      # zoxide（cd を乗っ取り、frecency ジャンプ）。非対話シェルで init すると Claude Code が動かなくなる現象があるため対話シェルのみで init する。
-      if [[ $- == *i* ]]; then
-        eval "$(zoxide init zsh --cmd cd)"
-      fi
+        # zoxide（cd を乗っ取り、frecency ジャンプ）。非対話シェルで init すると Claude Code が動かなくなる現象があるため対話シェルのみで init する。
+        if [[ $- == *i* ]]; then
+          eval "$(zoxide init zsh --cmd cd)"
+        fi
 
-      ghq() {
-        if [ $# -eq 0 ]; then
-          local repo_path
-          repo_path=$(command ghq list | fzf --height 40% --reverse)
-          if [[ -n "$repo_path" ]]; then
-            cd "$(command ghq root)/$repo_path"
+        ghq() {
+          if [ $# -eq 0 ]; then
+            local repo_path
+            repo_path=$(command ghq list | fzf --height 40% --reverse)
+            if [[ -n "$repo_path" ]]; then
+              cd "$(command ghq root)/$repo_path"
+            fi
+          else
+            command ghq "$@"
           fi
-        else
-          command ghq "$@"
-        fi
-      }
+        }
 
-      ghq-fzf_change_directory() {
-        local src=$(command ghq list | fzf --preview "eza -l -g -a --icons $(command ghq root)/{} | tail -n+4 | awk '{print \$6\"/\"\$8\" \"\$9 \" \" \$10}'")
-        if [ -n "$src" ]; then
-          BUFFER="cd $(command ghq root)/$src"
-          zle accept-line
-        fi
-        zle -R -c
-      }
-      zle -N ghq-fzf_change_directory
-      bindkey '^f' ghq-fzf_change_directory
+        ghq-fzf_change_directory() {
+          local src=$(command ghq list | fzf --preview "eza -l -g -a --icons $(command ghq root)/{} | tail -n+4 | awk '{print \$6\"/\"\$8\" \"\$9 \" \" \$10}'")
+          if [ -n "$src" ]; then
+            BUFFER="cd $(command ghq root)/$src"
+            zle accept-line
+          fi
+          zle -R -c
+        }
+        zle -N ghq-fzf_change_directory
+        bindkey '^f' ghq-fzf_change_directory
 
-      # 層1 secret: sops-nix が復号した 0400 ファイルから export（値は nix store に焼かれない）
-      ${lib.concatMapStringsSep "\n      " (
-        name:
-        ''[[ -r "${config.sops.secrets.${name}.path}" ]] && export ${name}="$(<"${
-          config.sops.secrets.${name}.path
-        }")"''
-      ) (builtins.attrNames config.sops.secrets)}
-    '';
+        # 層1 secret: sops-nix が復号した 0400 ファイルから export（値は nix store に焼かれない）
+        ${lib.concatMapStringsSep "\n      " (
+          name:
+          ''[[ -r "${config.sops.secrets.${name}.path}" ]] && export ${name}="$(<"${
+            config.sops.secrets.${name}.path
+          }")"''
+        ) (builtins.attrNames config.sops.secrets)}
+      '')
+
+      # zsh-autosuggestions の async モードを無効化する。async は候補取得を fork し、
+      # 子プロセスが「PID を1行目、候補本体を2行目以降」の順でパイプへ書き、親が read で
+      # PID 行を捨てる実装（zsh-autosuggestions.zsh の `echo $sysparams[pid]` と直後の read）。
+      # 前のリクエストのキャンセル（fd クローズ + kill -TERM）と競合すると読み捨てに失敗し、
+      # PID の数字がそのまま候補として提示され、Ctrl+E / → で確定すると行に数字が入る。
+      # 同期モードには fork もパイプも無いのでこの経路ごと消える。atuin strategy は毎
+      # キーストロークで `atuin search` を起動する（実測 ~15ms）ぶん競合しやすいが、
+      # ここでは同期化のコストよりバグを消す方を取る。
+      # プラグインは source 時に無条件で async を有効化するので、sheldon より後に置く。
+      (lib.mkAfter ''
+        unset ZSH_AUTOSUGGEST_USE_ASYNC
+      '')
+    ];
   };
 
   # git 設定（旧 ~/.dotfiles/.gitconfig から移植。user.name/email は flake.nix の homeUser）。
