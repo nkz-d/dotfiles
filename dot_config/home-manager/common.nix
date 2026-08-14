@@ -314,6 +314,7 @@
   programs.herdr = {
     enable = true;
     settings = {
+      onboarding = false;
       ui.toast.clipboard.enabled = false;
       ui.prompt_new_tab_name = false;
       keys = {
