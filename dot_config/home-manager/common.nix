@@ -295,19 +295,12 @@
     enableZshIntegration = true;
   };
 
+  # globalConfig はあえて設定しない。設定すると ~/.config/mise/config.toml が
+  # nix store への read-only symlink になり `mise use -g` が permission denied で失敗する。
+  # グローバルのツール一覧は mise 自身に持たせる（nix 管理外・git 管理外）。
   programs.mise = {
     enable = true;
     enableZshIntegration = true;
-    globalConfig = {
-      tools = {
-        python = "3.12";
-        node = "24";
-        go = "latest";
-        pnpm = "latest";
-        bun = "latest";
-        uv = "latest";
-      };
-    };
   };
 
   # agent multiplexer。settings → ~/.config/herdr/config.toml（https://herdr.dev/docs/configuration/）
