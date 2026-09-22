@@ -42,7 +42,21 @@
       # 評価・switch は chezmoi apply 済みの ~/.config/home-manager で行うこと。
       private = import ./private.nix;
 
-      sharedOverlays = [ ];
+      sharedOverlays = [
+        # 一時対応（2026-09）: dotnet-sdk_8（8.0.425）のソースビルドが aarch64-darwin の Hydra で
+        # 失敗しており、それをテストでしか使わない pre-commit までキャッシュから落ちている。
+        # テストを切って dotnet への依存を外す（preCheck が dotnet-sdk のパスを埋め込むので
+        # それも空にする）。python3Packages.identify が pytestCheckHook を runtime dependencies に
+        # 入れており doCheck と無関係に pytest フェーズが差し込まれるため dontUsePytestCheck も要る。
+        # pre-commit が再びキャッシュされたらこの overlay は削除する。
+        (final: prev: {
+          pre-commit = prev.pre-commit.overridePythonAttrs (_: {
+            doCheck = false;
+            dontUsePytestCheck = true;
+            preCheck = "";
+          });
+        })
+      ];
 
       # home-manager 側の user モジュール（standalone と、③で足す nix-darwin module の
       homeUser =
