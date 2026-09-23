@@ -7,6 +7,7 @@ lefthook.yml
 
 # Repo docs — must not be deployed to ~ by chezmoi.
 CLAUDE.md
+AGENTS.md
 README.md
 
 # MoonBit build artifacts (inside skill assets/)
