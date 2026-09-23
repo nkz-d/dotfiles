@@ -8,5 +8,6 @@ targets:
 dependencies:
   apm:
     - nkz-d/skills/skills/project-setup#8ca1c044a3dde03eb51887d6cd1bec79892b8dab
+    - ayghri/i-have-adhd/skills/i-have-adhd#839872f9d1cd634fed642b4589ce7226199cc15f
   mcp: []
 scripts: {}
