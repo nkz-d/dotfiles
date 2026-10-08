@@ -13,7 +13,7 @@ Design notes:
 - **Determinate Nix** is the Nix install, so `darwin.nix` sets `nix.enable = false` (and `programs.zsh.enable = false`) to avoid fighting it.
 - home-manager is **standalone**, not a nix-darwin module — home packages live in `~/.nix-profile/bin` and that dir is put first on `PATH`, so nix tools win over Homebrew.
 - `chezmoi` itself is **curl-installed** to `~/.local/bin` (not via brew/nix), by design.
-- `homebrew.onActivation.cleanup = "uninstall"` — only casks/mas/taps listed in `darwin.nix` survive; everything else is removed.
+- `homebrew.onActivation.cleanup = "none"` — nix-darwin never uninstalls brews/casks that are not listed in `darwin.nix`, so per-machine manual installs survive. Switch to `"uninstall"` to prune.
 - Secrets use **two** age-based systems — see [`dot_config/home-manager/SECRETS.md`](dot_config/home-manager/SECRETS.md).
 
 ## Installation
