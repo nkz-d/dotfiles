@@ -13,8 +13,7 @@
     # secrets ツール
     sops
     age
-    ssh-to-age
-    _1password-cli # op: chezmoi age 鍵を 1Password から復元する run スクリプトが使う
+    _1password-cli # op: run_before_restore-age-keys.sh restores both age keys from 1Password
 
     # cloud / k8s / infra
     awscli2
@@ -75,8 +74,9 @@
     _ZO_DOCTOR = "0";
     PNPM_HOME = "$HOME/Library/pnpm";
     BUN_INSTALL = "$HOME/.bun";
-    # sops CLI 用（CLI 組み込みの SSH 対応は agessh 流儀で ssh-to-age recipient を開けない）
-    SOPS_AGE_KEY_CMD = "ssh-to-age -private-key -i ${config.home.homeDirectory}/.ssh/id_ed25519";
+    # sops CLI: the same dedicated key sops-nix uses (secrets.nix). Without this,
+    # sops on macOS would look in ~/Library/Application Support/sops/age/keys.txt.
+    SOPS_AGE_KEY_FILE = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
     HOMEBREW_FORBIDDEN_FORMULAE = "node python python3 pip npm pnpm yarn claude";
     # Android SDK は Android Studio が管理する ~/Library/Android/sdk に一本化する
     # （brew cask の cmdline-tools 既定 root ではなくこちらを使わせる）。

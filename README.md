@@ -22,8 +22,9 @@ Design notes:
 # 1. Xcode Command Line Tools
 xcode-select --install
 
-# 2. Generate SSH Key
-ssh-keygen -t ed25519 -N "" -C "$(hostname -s)" -f ~/.ssh/id_ed25519
+# 2. Generate SSH Key (GitHub auth + commit signing). Set a passphrase when
+#    prompted: sops does not use this key, and UseKeychain remembers it.
+ssh-keygen -t ed25519 -C "$(hostname -s)" -f ~/.ssh/id_ed25519
 
 # 3. Bootstrap chezmoi
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
@@ -33,14 +34,18 @@ chezmoi init --apply nkz-d/dotfiles.git
 # 4. Install Nix (Determinate Systems installer recommended).
 curl -fsSL https://install.determinate.systems/nix | sh -s -- install
 
-# 5. Bootstrap home-manager
-nix run ~/.config/home-manager#bootstrap-home
-
-# 6. Bootstrap nix-darwin
+# 5. Bootstrap nix-darwin (installs the 1Password app, casks, mas)
 nix run ~/.config/home-manager#bootstrap-darwin
 
-# 7. Login 1Password-CLI and Re-apply chezmoi to decrypt age
-op signin && chezmoi apply -v
+# 6. Restore the age keys from 1Password. Sign in to the 1Password app, turn on
+#    Settings > Developer > "Integrate with 1Password CLI", then re-apply chezmoi
+#    with a temporary `op` (home-manager installs op, but sops-nix needs the
+#    key at activation or the secrets are silently missing from the shell).
+#    Writes ~/.config/age/key.txt and ~/.config/sops/age/keys.txt.
+NIXPKGS_ALLOW_UNFREE=1 nix shell --impure nixpkgs#_1password-cli --command chezmoi apply -v
+
+# 7. Bootstrap home-manager (decrypts the sops secrets at activation)
+nix run ~/.config/home-manager#bootstrap-home
 
 # 8. Add to GitHub for authentication and signing
 gh ssh-key add ~/.ssh/id_ed25519.pub --title "$(scutil --get ComputerName)" --type authentication

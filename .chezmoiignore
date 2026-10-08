@@ -39,6 +39,10 @@ README.md
 # the local machine and must be backed up out-of-band (1Password etc.).
 .config/age/**
 
+# sops age identity (NEVER commit). Dedicated key for sops-nix / sops CLI,
+# restored from 1Password by the same run_before script. Same guard as above.
+.config/sops/age/**
+
 # SSH keys (NEVER commit). ~/.ssh/config is managed (private_dot_ssh/),
 # but id_github etc. are restored out-of-band (1Password / old machine).
 # Defensive guard against an accidental `chezmoi add ~/.ssh/...`.
