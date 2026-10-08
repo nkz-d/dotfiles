@@ -7,6 +7,7 @@
 #       本文に key.txt の中身（AGE-SECRET-KEY-... を含む全文）を貼っておくこと。
 #       参照: op://dotfiles/chezmoi-age-key/notesPlain
 set -eu
+umask 077 # key file and ~/.config/age must never be group/world readable, even briefly
 
 key="${HOME}/.config/age/key.txt"
 [ -f "${key}" ] && exit 0

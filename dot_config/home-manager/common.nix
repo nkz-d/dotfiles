@@ -346,10 +346,23 @@
     enable = true;
     settings = {
       shell = "zsh";
+      # Every plugin is pinned to a commit: these files are sourced by every
+      # interactive shell, so an upstream compromise would otherwise become
+      # shell-startup code execution on the next `sheldon lock --update` or
+      # fresh-machine bootstrap. Bump the rev deliberately, after reviewing.
       plugins = {
-        zsh-autosuggestions.github = "zsh-users/zsh-autosuggestions";
-        fast-syntax-highlighting.github = "zdharma-continuum/fast-syntax-highlighting";
-        ni.github = "azu/ni.zsh";
+        zsh-autosuggestions = {
+          github = "zsh-users/zsh-autosuggestions";
+          rev = "85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5";
+        };
+        fast-syntax-highlighting = {
+          github = "zdharma-continuum/fast-syntax-highlighting";
+          rev = "3d574ccf48804b10dca52625df13da5edae7f553";
+        };
+        ni = {
+          github = "azu/ni.zsh";
+          rev = "a063d9f3da4ee3899115c1c83ef031acfb521cad";
+        };
       };
     };
   };

@@ -41,7 +41,15 @@
   "includeCoAuthoredBy": true,
   "language": "日本語",
   "permissions": {
-    "defaultMode": "{{ .claude_default_mode | default "acceptEdits" }}"
+    "defaultMode": "{{ .claude_default_mode | default "acceptEdits" }}",
+    "deny": [
+      "Read(~/.ssh/id_*)",
+      "Read(~/.config/age/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.config/gcloud/**)",
+      "Read(~/.azure/**)",
+      "Read(~/.config/op/**)"
+    ]
   },
   "remoteControlAtStartup": false,
   "showThinkingSummaries": true,
