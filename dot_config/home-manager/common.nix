@@ -257,6 +257,23 @@
     };
   };
 
+  # Load the SSH key into the launchd ssh-agent at login, passphrase taken from
+  # the macOS Keychain, so nothing ever prompts: `ssh` would auto-add the key
+  # (AddKeysToAgent + UseKeychain in ~/.ssh/config), but git's ssh signing runs
+  # `ssh-keygen -Y sign`, which does not read ssh_config and would block a
+  # coding agent on a passphrase prompt if the agent were empty. Prerequisite,
+  # once per machine (README step 2): ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+  launchd.agents.ssh-add-keychain = {
+    enable = true;
+    config = {
+      ProgramArguments = [
+        "/usr/bin/ssh-add"
+        "--apple-load-keychain"
+      ];
+      RunAtLoad = true;
+    };
+  };
+
   programs.starship = {
     enable = true;
     enableZshIntegration = true;

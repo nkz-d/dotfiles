@@ -23,8 +23,11 @@ Design notes:
 xcode-select --install
 
 # 2. Generate SSH Key (GitHub auth + commit signing). Set a passphrase when
-#    prompted: sops does not use this key, and UseKeychain remembers it.
+#    prompted (sops does not use this key), then store it in the Keychain and
+#    load the key into ssh-agent. A launchd agent from common.nix reloads it at
+#    every login, so neither `git push` nor ssh commit signing ever prompts.
 ssh-keygen -t ed25519 -C "$(hostname -s)" -f ~/.ssh/id_ed25519
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519
 
 # 3. Bootstrap chezmoi
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
