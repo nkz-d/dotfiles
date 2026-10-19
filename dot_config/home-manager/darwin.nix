@@ -61,6 +61,7 @@
     brews = [
       "mas"
       "microsoft/apm/apm"
+      "xcodes"
     ];
 
     casks = [
