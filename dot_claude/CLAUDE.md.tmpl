@@ -2,10 +2,10 @@
 
 ## Output style
 
-Apply the ADHD-friendly response rules imported below to every response. The
-file is the i-have-adhd skill deployed by apm (declared in `~/.apm/apm.yml`,
-pinned to a commit there), so the rules stay in one place. The skill itself sets
-`disable-model-invocation: true` and cannot be loaded on its own; this import is
-what makes it always-on. Codex gets the same rules inlined in `~/.codex/AGENTS.md`.
+{{- /* The imported file is the i-have-adhd skill deployed by apm (pinned in
+~/.apm/apm.yml). It sets disable-model-invocation: true, so this import is what
+makes it always-on. Codex gets a condensed copy inlined in dot_codex/AGENTS.md.tmpl. */}}
+
+Apply the ADHD-friendly response rules imported below to every response.
 
 @~/.claude/skills/i-have-adhd/SKILL.md
