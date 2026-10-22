@@ -89,6 +89,7 @@
   home.sessionPath = [
     "$HOME/.nix-profile/bin"
     "/run/current-system/sw/bin"
+    "/opt/homebrew/opt/curl/bin" # keg-only brew curl over /usr/bin/curl (see darwin.nix brews)
     "$HOME/.local/bin"
     "$HOME/Library/pnpm"
     "$HOME/.deno/bin"
@@ -156,7 +157,7 @@
 
         # .zprofile の brew shellenv が login shell ごとに brew を PATH 先頭へ前置し直すため、
         # ここで毎シェル nix を先頭へ戻す（ネスト login shell の path_helper 対策も兼ねる）
-        path=("$HOME/.nix-profile/bin" "/run/current-system/sw/bin" $path)
+        path=("$HOME/.nix-profile/bin" "/run/current-system/sw/bin" "/opt/homebrew/opt/curl/bin" $path)
         typeset -U path
 
         # bun completions

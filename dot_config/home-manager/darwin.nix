@@ -33,7 +33,7 @@
   # Homebrew bridge — casks / mas / taps を宣言的に管理する（③ の主目的）。
   # cleanup = "none": この宣言に無い brew/cask は放置する（uninstall しない）。
   # 特定マシンだけに手動で brew install したものを残すため。共通分はここに宣言し、
-  # CLI は nixpkgs へ移行済みで、brews は mas と apm のみ。
+  # CLI は nixpkgs へ移行済みで、brews は例外のみ（mas / apm / xcodes / curl）。
   # 意図的に「ここに置かない」もの（移行時に手動で撤去済み）:
   #   - chezmoi: curl(get.chezmoi.io)で ~/.local/bin に入れる前提
   #   - zsh: Apple 標準 /bin/zsh を使う（chsh で切替。brew zsh は撤去）
@@ -62,6 +62,11 @@
       "mas"
       "microsoft/apm/apm"
       "xcodes"
+      # macOS /usr/bin/curl verifies against /etc/ssl/cert.pem, which Apple does not
+      # update promptly (it still trusted the compromised eMudhra intermediates in
+      # 2026-10), while brew curl uses brew's ca-certificates. It is keg-only, so
+      # common.nix puts /opt/homebrew/opt/curl/bin ahead of /usr/bin.
+      "curl"
     ];
 
     casks = [
