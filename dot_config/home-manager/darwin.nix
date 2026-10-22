@@ -64,9 +64,14 @@
       "xcodes"
       # macOS /usr/bin/curl verifies against /etc/ssl/cert.pem, which Apple does not
       # update promptly (it still trusted the compromised eMudhra intermediates in
-      # 2026-10), while brew curl uses brew's ca-certificates. It is keg-only, so
-      # common.nix puts /opt/homebrew/opt/curl/bin ahead of /usr/bin.
-      "curl"
+      # 2026-10), while brew curl uses brew's ca-certificates. It is keg-only, so force
+      # the link into /opt/homebrew/bin, which precedes /usr/bin. Reordering PATH in
+      # common.nix instead does not stick: mise rebuilds PATH from an inherited
+      # __MISE_ORIG_PATH in nested or re-sourced shells and pushes the entry to the end.
+      {
+        name = "curl";
+        link = true;
+      }
     ];
 
     casks = [
