@@ -15,6 +15,8 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Temporary pin for azure-cli only (see the overlay in sharedOverlays).
+    nixpkgs-azure-cli.url = "github:nixos/nixpkgs/35e212742ceab4ae1dcfbfd9039a39215c816e8e";
   };
 
   outputs =
@@ -24,6 +26,7 @@
       home-manager,
       nix-darwin,
       sops-nix,
+      nixpkgs-azure-cli,
       ...
     }:
     let
@@ -55,6 +58,17 @@
             dontUsePytestCheck = true;
             preCheck = "";
           });
+        })
+        # Temporary fix (2026-10): python3Packages.fabric is marked broken since invoke 3
+        # (nixpkgs 2cc89a78, fabric/fabric#2376), and azure-cli depends on it, so evaluation
+        # fails. Take azure-cli from the last nixpkgs where it still evaluated; the store
+        # paths match the previous generation, so nothing is rebuilt.
+        # Drop this overlay and the nixpkgs-azure-cli input once azure-cli evaluates again.
+        (final: prev: {
+          azure-cli =
+            (import nixpkgs-azure-cli {
+              inherit system;
+            }).azure-cli;
         })
       ];
 
