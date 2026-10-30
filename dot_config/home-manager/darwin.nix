@@ -115,6 +115,7 @@
       "ngrok"
       "obsidian"
       "orbstack"
+      "penso/tap/herdr-gpui"
       "raycast"
       "tailscale-app"
       "visual-studio-code"
