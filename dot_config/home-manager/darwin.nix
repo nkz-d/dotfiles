@@ -120,6 +120,8 @@
       "visual-studio-code"
     ];
 
+    # Xcode is intentionally absent: install it with xcodes (brews above) so
+    # several versions can sit side by side.
     masApps = {
       "1Password for Safari" = 1569813296;
       "Apple Configurator" = 1037126344;
@@ -134,7 +136,6 @@
       "Slack" = 803453959;
       "TestFlight" = 899247664;
       "Transporter" = 1450874784;
-      "Xcode" = 497799835;
     };
   };
 
