@@ -108,6 +108,7 @@
       "ghostty"
       "google-chrome"
       "google-japanese-ime"
+      "grok-bot"
       "icon-composer"
       "iterm2"
       "karabiner-elements"
