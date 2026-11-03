@@ -113,6 +113,7 @@
       "iterm2"
       "karabiner-elements"
       "keyboardcleantool"
+      "lunar"
       "ngrok"
       "obsidian"
       "orbstack"
