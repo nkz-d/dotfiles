@@ -118,6 +118,7 @@
       "obsidian"
       "orbstack"
       "raycast"
+      "spotify"
       "tailscale-app"
       "visual-studio-code"
     ];
