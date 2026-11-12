@@ -1,0 +1,38 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /*
+  ~/.claude/settings.json has three writers: this repo, Claude Code itself,
+  and herdr (`herdr integration install claude`, run on every home-manager
+  switch). A plain or create_ target either fights them (apply prompts on
+  every format change) or never propagates (create_ skips existing files).
+
+  So this modify template:
+  - renders the full defaults from .chezmoitemplates/claude-settings.json
+    when the file does not exist yet (fresh machine bootstrap);
+  - otherwise only unions the default permissions.deny rules into the
+    existing file, leaving every other key to the other writers;
+  - passes the file through byte-for-byte when nothing is missing, so it
+    does not churn against herdr's canonical formatting.
+*/ -}}
+{{- $defaults := includeTemplate "claude-settings.json" . | fromJson -}}
+{{- if eq (trim .chezmoi.stdin) "" -}}
+{{-   $defaults | toPrettyJson -}}
+{{- else -}}
+{{-   $current := fromJson .chezmoi.stdin -}}
+{{-   $have := list -}}
+{{-   if hasKey $current "permissions" -}}
+{{-     if hasKey $current.permissions "deny" -}}
+{{-       $have = $current.permissions.deny -}}
+{{-     end -}}
+{{-   end -}}
+{{-   $missing := list -}}
+{{-   range $defaults.permissions.deny -}}
+{{-     if not (has . $have) -}}
+{{-       $missing = append $missing . -}}
+{{-     end -}}
+{{-   end -}}
+{{-   if $missing -}}
+{{-     setValueAtPath "permissions.deny" (concat $have $missing) $current | toPrettyJson -}}
+{{-   else -}}
+{{-     .chezmoi.stdin -}}
+{{-   end -}}
+{{- end -}}

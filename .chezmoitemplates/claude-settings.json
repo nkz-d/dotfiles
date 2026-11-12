@@ -48,7 +48,11 @@
       "Read(~/.aws/**)",
       "Read(~/.config/gcloud/**)",
       "Read(~/.azure/**)",
-      "Read(~/.config/op/**)"
+      "Read(~/.config/op/**)",
+      "Read(.env)",
+      "Edit(.env)",
+      "Bash(*.env*)",
+      "Bash(docker compose exec*printenv*)"
     ]
   },
   "remoteControlAtStartup": false,
